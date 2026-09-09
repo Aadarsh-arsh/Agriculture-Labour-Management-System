@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.kisanmitra.ui.screens.attendance.AttendanceScreen
 import com.example.kisanmitra.ui.screens.crop.CropScreen
+import com.example.kisanmitra.ui.screens.task.AgriculturalTaskScreen
 import com.example.kisanmitra.ui.screens.dashboard.DashboardScreen
 import com.example.kisanmitra.ui.screens.farm.FarmScreen
 import com.example.kisanmitra.ui.screens.labour.LabourScreen
@@ -21,6 +22,8 @@ sealed class Screen(val route: String) {
     data object Farm : Screen("farm")
 
     data object Crop : Screen("crop")
+
+    data object AgriculturalTask : Screen("agricultural_task")
 }
 
 @Composable
@@ -70,8 +73,19 @@ fun NavGraph(
         }
 
         composable(Screen.Crop.route) {
-
             CropScreen(
+                onBack = {
+                    navController.popBackStack()
+                },
+                onAgriculturalTask = {
+                    navController.navigate(Screen.AgriculturalTask.route)
+                }
+            )
+        }
+
+        composable(Screen.AgriculturalTask.route) {
+
+            AgriculturalTaskScreen(
                 onBack = {
                     navController.popBackStack()
                 }

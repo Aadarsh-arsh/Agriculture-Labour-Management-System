@@ -1,6 +1,5 @@
-package com.example.kisanmitra.ui.screens.labour
+package com.example.kisanmitra.ui.screens.task
 
-import android.app.Application
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,73 +20,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.viewModelScope
-import com.example.kisanmitra.data.KisanMitraDatabase
-import com.example.kisanmitra.data.Labour
-import com.example.kisanmitra.data.LabourRepository
-import kotlinx.coroutines.launch
-
-class LabourViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val database = KisanMitraDatabase.getDatabase(application)
-
-    private val repository = LabourRepository(
-        database.labourDao()
-    )
-
-    val labourers = repository.allLabourers
-
-    fun addLabour(
-        name: String,
-        phone: String,
-        wage: String,
-        skill: String
-    ) {
-        val dailyWage = wage.toDoubleOrNull() ?: return
-
-        if (
-            name.isBlank() ||
-            phone.isBlank() ||
-            skill.isBlank()
-        ) {
-            return
-        }
-
-        viewModelScope.launch {
-            repository.insertLabour(
-                Labour(
-                    name = name,
-                    phone = phone,
-                    dailyWage = dailyWage,
-                    skill = skill
-                )
-            )
-        }
-    }
-
-    fun deleteLabour(labour: Labour) {
-        viewModelScope.launch {
-            repository.deleteLabour(labour)
-        }
-    }
-}
+import com.example.kisanmitra.data.AgriculturalTask
 
 @Composable
-fun LabourScreen(
+fun AgriculturalTaskScreen(
     onBack: () -> Unit,
-    viewModel: LabourViewModel = viewModel()
+    viewModel: AgriculturalTaskViewModel = viewModel()
 ) {
 
-    val labourers by viewModel.labourers.collectAsState(
+    val tasks by viewModel.tasks.collectAsState(
         initial = emptyList()
     )
 
-    var name by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
-    var wage by remember { mutableStateOf("") }
-    var skill by remember { mutableStateOf("") }
+    var taskName by remember { mutableStateOf("") }
+    var cropName by remember { mutableStateOf("") }
+    var taskDate by remember { mutableStateOf("") }
+    var status by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -96,48 +45,40 @@ fun LabourScreen(
     ) {
 
         Text(
-            text = "Labour Management"
+            text = "Agricultural Task Management"
         )
 
         OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = {
-                Text("Labour Name")
-            },
+            value = taskName,
+            onValueChange = { taskName = it },
+            label = { Text("Task Name") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 12.dp)
         )
 
         OutlinedTextField(
-            value = phone,
-            onValueChange = { phone = it },
-            label = {
-                Text("Phone Number")
-            },
+            value = cropName,
+            onValueChange = { cropName = it },
+            label = { Text("Crop Name") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
         )
 
         OutlinedTextField(
-            value = wage,
-            onValueChange = { wage = it },
-            label = {
-                Text("Daily Wage")
-            },
+            value = taskDate,
+            onValueChange = { taskDate = it },
+            label = { Text("Task Date") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
         )
 
         OutlinedTextField(
-            value = skill,
-            onValueChange = { skill = it },
-            label = {
-                Text("Skill / Work Type")
-            },
+            value = status,
+            onValueChange = { status = it },
+            label = { Text("Status") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
@@ -146,27 +87,27 @@ fun LabourScreen(
         Button(
             onClick = {
 
-                viewModel.addLabour(
-                    name = name,
-                    phone = phone,
-                    wage = wage,
-                    skill = skill
+                viewModel.addTask(
+                    taskName = taskName,
+                    cropName = cropName,
+                    taskDate = taskDate,
+                    status = status
                 )
 
-                name = ""
-                phone = ""
-                wage = ""
-                skill = ""
+                taskName = ""
+                cropName = ""
+                taskDate = ""
+                status = ""
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 12.dp)
         ) {
-            Text("Add Labourer")
+            Text("Add Task")
         }
 
         Text(
-            text = "Labourers",
+            text = "My Agricultural Tasks",
             modifier = Modifier.padding(top = 20.dp)
         )
 
@@ -178,14 +119,14 @@ fun LabourScreen(
         ) {
 
             items(
-                items = labourers,
+                items = tasks,
                 key = { it.id }
-            ) { labour ->
+            ) { task ->
 
-                LabourCard(
-                    labour = labour,
+                TaskCard(
+                    task = task,
                     onDelete = {
-                        viewModel.deleteLabour(labour)
+                        viewModel.deleteTask(task)
                     }
                 )
             }
@@ -201,8 +142,8 @@ fun LabourScreen(
 }
 
 @Composable
-private fun LabourCard(
-    labour: Labour,
+private fun TaskCard(
+    task: AgriculturalTask,
     onDelete: () -> Unit
 ) {
 
@@ -215,19 +156,19 @@ private fun LabourCard(
         ) {
 
             Text(
-                text = labour.name
+                text = task.taskName
             )
 
             Text(
-                text = "Phone: ${labour.phone}"
+                text = "Crop: ${task.cropName}"
             )
 
             Text(
-                text = "Daily Wage: ₹${labour.dailyWage}"
+                text = "Date: ${task.taskDate}"
             )
 
             Text(
-                text = "Skill: ${labour.skill}"
+                text = "Status: ${task.status}"
             )
 
             Row(
