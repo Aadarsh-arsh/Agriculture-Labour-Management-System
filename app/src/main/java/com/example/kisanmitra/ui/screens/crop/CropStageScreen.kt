@@ -21,24 +21,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.kisanmitra.data.Crop
+import com.example.kisanmitra.data.CropStage
 
 @Composable
-fun CropScreen(
+fun CropStageScreen(
     onBack: () -> Unit,
-    onAgriculturalTask: () -> Unit,
-    onCropStage: () -> Unit,
-    viewModel: CropViewModel = viewModel()
+    viewModel: CropStageViewModel = viewModel()
 ) {
-
-    val crops by viewModel.crops.collectAsState(
-        initial = emptyList()
-    )
-
     var cropName by remember { mutableStateOf("") }
-    var farmName by remember { mutableStateOf("") }
-    var sowingDate by remember { mutableStateOf("") }
-    var cropStage by remember { mutableStateOf("") }
+    var stageName by remember { mutableStateOf("") }
+    var startDate by remember { mutableStateOf("") }
+    var endDate by remember { mutableStateOf("") }
+    var notes by remember { mutableStateOf("") }
+
+    val cropStages by viewModel.cropStages.collectAsState(initial = emptyList())
 
     Column(
         modifier = Modifier
@@ -47,7 +43,12 @@ fun CropScreen(
     ) {
 
         Text(
-            text = "Crop Management"
+            text = "Crop Stage Management"
+        )
+
+        Text(
+            text = "Track different stages of crop growth",
+            modifier = Modifier.padding(top = 8.dp)
         )
 
         OutlinedTextField(
@@ -60,27 +61,38 @@ fun CropScreen(
         )
 
         OutlinedTextField(
-            value = farmName,
-            onValueChange = { farmName = it },
-            label = { Text("Farm Name") },
+            value = stageName,
+            onValueChange = { stageName = it },
+            label = { Text("Stage Name") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
         )
 
         OutlinedTextField(
-            value = sowingDate,
-            onValueChange = { sowingDate = it },
-            label = { Text("Sowing Date") },
+            value = startDate,
+            onValueChange = { startDate = it },
+            label = { Text("Start Date") },
+            placeholder = { Text("DD/MM/YYYY") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
         )
 
         OutlinedTextField(
-            value = cropStage,
-            onValueChange = { cropStage = it },
-            label = { Text("Crop Stage") },
+            value = endDate,
+            onValueChange = { endDate = it },
+            label = { Text("End Date") },
+            placeholder = { Text("DD/MM/YYYY") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+        )
+
+        OutlinedTextField(
+            value = notes,
+            onValueChange = { notes = it },
+            label = { Text("Notes") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
@@ -89,28 +101,30 @@ fun CropScreen(
         Button(
             onClick = {
 
-                viewModel.addCrop(
+                viewModel.addCropStage(
                     cropName = cropName,
-                    farmName = farmName,
-                    sowingDate = sowingDate,
-                    cropStage = cropStage
+                    stageName = stageName,
+                    startDate = startDate,
+                    endDate = endDate,
+                    notes = notes
                 )
 
                 cropName = ""
-                farmName = ""
-                sowingDate = ""
-                cropStage = ""
+                stageName = ""
+                startDate = ""
+                endDate = ""
+                notes = ""
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 12.dp)
         ) {
-            Text("Add Crop")
+            Text("Add Crop Stage")
         }
 
         Text(
-            text = "My Crops",
-            modifier = Modifier.padding(top = 20.dp)
+            text = "Crop Stage Records",
+            modifier = Modifier.padding(top = 16.dp)
         )
 
         LazyColumn(
@@ -121,35 +135,17 @@ fun CropScreen(
         ) {
 
             items(
-                items = crops,
+                items = cropStages,
                 key = { it.id }
-            ) { crop ->
+            ) { cropStage ->
 
-                CropCard(
-                    crop = crop,
+                CropStageCard(
+                    cropStage = cropStage,
                     onDelete = {
-                        viewModel.deleteCrop(crop)
+                        viewModel.deleteCropStage(cropStage)
                     }
                 )
             }
-        }
-
-        Button(
-            onClick = onCropStage,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
-        ) {
-            Text("Crop Stage Management")
-        }
-
-        Button(
-            onClick = onAgriculturalTask,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
-        ) {
-            Text("Agricultural Tasks")
         }
 
         Button(
@@ -164,11 +160,10 @@ fun CropScreen(
 }
 
 @Composable
-private fun CropCard(
-    crop: Crop,
+private fun CropStageCard(
+    cropStage: CropStage,
     onDelete: () -> Unit
 ) {
-
     Card(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -178,20 +173,30 @@ private fun CropCard(
         ) {
 
             Text(
-                text = crop.cropName
+                text = "Crop: ${cropStage.cropName}"
             )
 
             Text(
-                text = "Farm: ${crop.farmName}"
+                text = "Stage: ${cropStage.stageName}",
+                modifier = Modifier.padding(top = 4.dp)
             )
 
             Text(
-                text = "Sowing Date: ${crop.sowingDate}"
+                text = "Start Date: ${cropStage.startDate}",
+                modifier = Modifier.padding(top = 4.dp)
             )
 
             Text(
-                text = "Stage: ${crop.cropStage}"
+                text = "End Date: ${cropStage.endDate}",
+                modifier = Modifier.padding(top = 4.dp)
             )
+
+            if (cropStage.notes.isNotBlank()) {
+                Text(
+                    text = "Notes: ${cropStage.notes}",
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
 
             Row(
                 modifier = Modifier

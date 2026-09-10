@@ -64,6 +64,14 @@ fun DashboardScreen(
         )
 
         DashboardCard(
+            title = "💰 Wage Calculation",
+            description = "Calculate labour wages based on attendance",
+            onClick = {
+                onNavigate(Screen.Wage.route)
+            }
+        )
+
+        DashboardCard(
             title = "🌾 Farm Management",
             description = "Manage your farms and agricultural land",
             onClick = {
