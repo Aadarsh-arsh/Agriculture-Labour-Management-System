@@ -10,9 +10,10 @@ import androidx.room.RoomDatabase
         Labour::class,
         Farm::class,
         Crop::class,
-        AgriculturalTask::class
+        AgriculturalTask::class,
+        LabourAssignment::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class KisanMitraDatabase : RoomDatabase() {
@@ -24,6 +25,8 @@ abstract class KisanMitraDatabase : RoomDatabase() {
     abstract fun cropDao(): CropDao
 
     abstract fun agriculturalTaskDao(): AgriculturalTaskDao
+
+    abstract fun labourAssignmentDao(): LabourAssignmentDao
 
     companion object {
 

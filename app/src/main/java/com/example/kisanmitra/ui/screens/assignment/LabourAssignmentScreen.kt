@@ -1,4 +1,4 @@
-package com.example.kisanmitra.ui.screens.task
+package com.example.kisanmitra.ui.screens.assignment
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,23 +21,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.kisanmitra.data.AgriculturalTask
+import com.example.kisanmitra.data.LabourAssignment
 
 @Composable
-fun AgriculturalTaskScreen(
+fun LabourAssignmentScreen(
     onBack: () -> Unit,
-    onAssignLabour: () -> Unit,
-    viewModel: AgriculturalTaskViewModel = viewModel()
+    viewModel: LabourAssignmentViewModel = viewModel()
 ) {
 
-    val tasks by viewModel.tasks.collectAsState(
+    val assignments by viewModel.assignments.collectAsState(
         initial = emptyList()
     )
 
-    var taskName by remember { mutableStateOf("") }
+    var labourId by remember { mutableStateOf("") }
+    var labourName by remember { mutableStateOf("") }
+    var farmName by remember { mutableStateOf("") }
     var cropName by remember { mutableStateOf("") }
-    var taskDate by remember { mutableStateOf("") }
-    var status by remember { mutableStateOf("") }
+    var taskName by remember { mutableStateOf("") }
+    var assignmentDate by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -46,16 +47,34 @@ fun AgriculturalTaskScreen(
     ) {
 
         Text(
-            text = "Agricultural Task Management"
+            text = "Labour Assignment"
         )
 
         OutlinedTextField(
-            value = taskName,
-            onValueChange = { taskName = it },
-            label = { Text("Task Name") },
+            value = labourId,
+            onValueChange = { labourId = it },
+            label = { Text("Labour ID") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 12.dp)
+        )
+
+        OutlinedTextField(
+            value = labourName,
+            onValueChange = { labourName = it },
+            label = { Text("Labour Name") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+        )
+
+        OutlinedTextField(
+            value = farmName,
+            onValueChange = { farmName = it },
+            label = { Text("Farm Name") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
         )
 
         OutlinedTextField(
@@ -68,18 +87,18 @@ fun AgriculturalTaskScreen(
         )
 
         OutlinedTextField(
-            value = taskDate,
-            onValueChange = { taskDate = it },
-            label = { Text("Task Date") },
+            value = taskName,
+            onValueChange = { taskName = it },
+            label = { Text("Agricultural Task") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
         )
 
         OutlinedTextField(
-            value = status,
-            onValueChange = { status = it },
-            label = { Text("Status") },
+            value = assignmentDate,
+            onValueChange = { assignmentDate = it },
+            label = { Text("Assignment Date") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
@@ -88,27 +107,31 @@ fun AgriculturalTaskScreen(
         Button(
             onClick = {
 
-                viewModel.addTask(
-                    taskName = taskName,
+                viewModel.addAssignment(
+                    labourId = labourId.toIntOrNull() ?: 0,
+                    labourName = labourName,
+                    farmName = farmName,
                     cropName = cropName,
-                    taskDate = taskDate,
-                    status = status
+                    taskName = taskName,
+                    assignmentDate = assignmentDate
                 )
 
-                taskName = ""
+                labourId = ""
+                labourName = ""
+                farmName = ""
                 cropName = ""
-                taskDate = ""
-                status = ""
+                taskName = ""
+                assignmentDate = ""
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 12.dp)
         ) {
-            Text("Add Task")
+            Text("Assign Labour")
         }
 
         Text(
-            text = "My Agricultural Tasks",
+            text = "Current Assignments",
             modifier = Modifier.padding(top = 20.dp)
         )
 
@@ -120,16 +143,15 @@ fun AgriculturalTaskScreen(
         ) {
 
             items(
-                items = tasks,
+                items = assignments,
                 key = { it.id }
-            ) { task ->
+            ) { assignment ->
 
-                TaskCard(
-                    task = task,
+                AssignmentCard(
+                    assignment = assignment,
                     onDelete = {
-                        viewModel.deleteTask(task)
-                    },
-                    onAssignLabour = onAssignLabour
+                        viewModel.deleteAssignment(assignment)
+                    }
                 )
             }
         }
@@ -144,10 +166,9 @@ fun AgriculturalTaskScreen(
 }
 
 @Composable
-private fun TaskCard(
-    task: AgriculturalTask,
-    onDelete: () -> Unit,
-    onAssignLabour: () -> Unit
+private fun AssignmentCard(
+    assignment: LabourAssignment,
+    onDelete: () -> Unit
 ) {
 
     Card(
@@ -159,19 +180,23 @@ private fun TaskCard(
         ) {
 
             Text(
-                text = task.taskName
+                text = assignment.labourName
             )
 
             Text(
-                text = "Crop: ${task.cropName}"
+                text = "Farm: ${assignment.farmName}"
             )
 
             Text(
-                text = "Date: ${task.taskDate}"
+                text = "Crop: ${assignment.cropName}"
             )
 
             Text(
-                text = "Status: ${task.status}"
+                text = "Task: ${assignment.taskName}"
+            )
+
+            Text(
+                text = "Date: ${assignment.assignmentDate}"
             )
 
             Row(
@@ -182,14 +207,7 @@ private fun TaskCard(
             ) {
 
                 Button(
-                    onClick = onAssignLabour
-                ) {
-                    Text("Assign Labour")
-                }
-
-                Button(
-                    onClick = onDelete,
-                    modifier = Modifier.padding(start = 8.dp)
+                    onClick = onDelete
                 ) {
                     Text("Delete")
                 }
