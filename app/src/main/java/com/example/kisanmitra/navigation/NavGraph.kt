@@ -11,6 +11,7 @@ import com.example.kisanmitra.ui.screens.crop.CropStageScreen
 import com.example.kisanmitra.ui.screens.dashboard.DashboardScreen
 import com.example.kisanmitra.ui.screens.farm.FarmScreen
 import com.example.kisanmitra.ui.screens.labour.LabourScreen
+import com.example.kisanmitra.ui.screens.organic.OrganicFarmingScreen
 import com.example.kisanmitra.ui.screens.task.AgriculturalTaskScreen
 import com.example.kisanmitra.ui.screens.wage.WageScreen
 
@@ -33,6 +34,8 @@ sealed class Screen(val route: String) {
     data object LabourAssignment : Screen("labour_assignment")
 
     data object Wage : Screen("wage")
+
+    data object OrganicFarming : Screen("organic_farming")
 }
 
 @Composable
@@ -144,6 +147,16 @@ fun NavGraph(
         composable(Screen.Wage.route) {
 
             WageScreen(
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        // Organic Farming
+        composable(Screen.OrganicFarming.route) {
+
+            OrganicFarmingScreen(
                 onBack = {
                     navController.popBackStack()
                 }

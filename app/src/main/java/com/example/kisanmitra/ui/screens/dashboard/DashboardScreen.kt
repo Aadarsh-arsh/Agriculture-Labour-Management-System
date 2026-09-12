@@ -93,16 +93,16 @@ fun DashboardScreen(
         )
 
         DashboardCard(
-            title = "🔬 Crop Care & Disease Detection",
-            description = "Get information about crop health and diseases",
+            title = "🌿 Organic Farming",
+            description = "Learn organic farming practices, natural fertilizers and pest management",
             onClick = {
-                // Feature will be added later
+                onNavigate(Screen.OrganicFarming.route)
             }
         )
 
         DashboardCard(
-            title = "📖 Farming Guide",
-            description = "Access useful agricultural information and crop-care guidance",
+            title = "🔬 Crop Care & Disease Detection",
+            description = "Get information about crop health and diseases",
             onClick = {
                 // Feature will be added later
             }
