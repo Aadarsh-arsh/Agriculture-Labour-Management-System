@@ -2,21 +2,29 @@ package com.example.kisanmitra.ui.screens.organic
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun OrganicFarmingScreen(
@@ -32,69 +40,114 @@ fun OrganicFarmingScreen(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
 
-        Text(text = "🌿 Organic Farming")
+        // Header
+        Text(
+            text = "🌿 Organic Farming",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF1B5E20)
+        )
 
         Text(
-            text = "Learn sustainable and natural farming practices."
+            text = "Natural and sustainable farming guidance",
+            fontSize = 14.sp,
+            color = Color(0xFF616161)
+        )
+
+        // Intro Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(22.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color(0xFFE8F5E9)
+            )
+        ) {
+            Column(
+                modifier = Modifier.padding(20.dp)
+            ) {
+                Text(
+                    text = "🌱 Grow Naturally",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1B5E20)
+                )
+
+                Text(
+                    text = "Explore organic crop practices, natural fertilizers, pest management and sustainable farming methods.",
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+        }
+
+        Text(
+            text = "Organic Farming Services",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(top = 8.dp)
         )
 
         OrganicSectionCard(
-            title = "🌱 Organic Crop Guide",
-            description = "Crop-wise organic practices, irrigation, soil preparation and crop-stage guidance.",
+            icon = "🌱",
+            title = "Organic Crop Guide",
+            description = "Crop-wise practices, irrigation, soil preparation and crop-stage guidance.",
             onClick = {
                 selectedSection = "crop"
             }
         )
 
         OrganicSectionCard(
-            title = "🧪 Natural Fertilizers",
-            description = "Learn about vermicompost, compost, Jeevamrut, Panchagavya, neem cake and green manure.",
+            icon = "🧪",
+            title = "Natural Fertilizers",
+            description = "Vermicompost, compost, Jeevamrut, Panchagavya, neem cake and green manure.",
             onClick = {
                 selectedSection = "fertilizer"
             }
         )
 
         OrganicSectionCard(
-            title = "🐛 Natural Pest Management",
-            description = "Explore neem-based sprays, garlic-chilli extracts, sticky traps and biological pest management.",
+            icon = "🐛",
+            title = "Natural Pest Management",
+            description = "Neem-based products, plant extracts, sticky traps and biological pest control.",
             onClick = {
                 selectedSection = "pest"
             }
         )
 
         OrganicSectionCard(
-            title = "📅 Organic Farming Schedule",
-            description = "Plan sowing, fertilization, irrigation, pest management and harvesting activities.",
+            icon = "📅",
+            title = "Organic Farming Schedule",
+            description = "Plan sowing, fertilization, irrigation, pest management and harvesting.",
             onClick = {
                 selectedSection = "schedule"
             }
         )
 
         OrganicSectionCard(
-            title = "♻️ Organic Farming Tips",
-            description = "Learn about crop rotation, mulching, composting, water conservation and sustainable farming.",
+            icon = "♻️",
+            title = "Organic Farming Tips",
+            description = "Crop rotation, mulching, composting and water conservation practices.",
             onClick = {
                 selectedSection = "tips"
             }
         )
 
-        if (selectedSection != null) {
+        // Details
+        when (selectedSection) {
 
-            when (selectedSection) {
+            "crop" -> CropGuideContent()
 
-                "crop" -> CropGuideContent()
+            "fertilizer" -> FertilizerContent()
 
-                "fertilizer" -> FertilizerContent()
+            "pest" -> PestManagementContent()
 
-                "pest" -> PestManagementContent()
+            "schedule" -> FarmingScheduleContent()
 
-                "schedule" -> FarmingScheduleContent()
-
-                "tips" -> OrganicTipsContent()
-            }
+            "tips" -> OrganicTipsContent()
         }
 
         Button(
@@ -103,40 +156,87 @@ fun OrganicFarmingScreen(
                 .fillMaxWidth()
                 .padding(top = 8.dp)
         ) {
-            Text("Back")
+            Text("Back to Dashboard")
         }
     }
 }
 
 @Composable
 private fun OrganicSectionCard(
+    icon: String,
     title: String,
     description: String,
     onClick: () -> Unit
 ) {
 
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 3.dp
+        ),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        )
     ) {
 
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Text(text = title)
-
-            Text(
-                text = description,
-                modifier = Modifier.padding(top = 6.dp)
-            )
-
-            Button(
-                onClick = onClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp)
+            Card(
+                modifier = Modifier.size(52.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFE8F5E9)
+                )
             ) {
-                Text("View Details")
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+
+                    Text(
+                        text = icon,
+                        fontSize = 23.sp
+                    )
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 14.dp)
+            ) {
+
+                Text(
+                    text = title,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1B5E20)
+                )
+
+                Text(
+                    text = description,
+                    fontSize = 13.sp,
+                    lineHeight = 18.sp,
+                    color = Color(0xFF616161),
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+
+                Button(
+                    onClick = onClick,
+                    modifier = Modifier.padding(top = 6.dp)
+                ) {
+                    Text("View Details")
+                }
             }
         }
     }
@@ -145,171 +245,169 @@ private fun OrganicSectionCard(
 @Composable
 private fun CropGuideContent() {
 
-    Card(
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    DetailCard(
+        title = "🌱 Organic Crop Guide",
+        content = """
+            🍅 Tomato
+            • Use well-decomposed compost before planting.
+            • Use mulch to conserve soil moisture.
+            • Provide regular irrigation without waterlogging.
+            • Use suitable neem-based products for preventive pest management.
 
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
+            🌾 Wheat
+            • Prepare soil using compost or farmyard manure.
+            • Maintain proper irrigation during important growth stages.
+            • Practice crop rotation to maintain soil health.
 
-            Text("🌱 Organic Crop Guide")
+            🍚 Rice
+            • Use organic manure during soil preparation.
+            • Maintain proper field drainage.
+            • Manage irrigation according to crop requirements.
 
-            Text("Tomato")
-            Text("• Use well-decomposed compost before planting.")
-            Text("• Use mulch to conserve soil moisture.")
-            Text("• Provide regular irrigation without waterlogging.")
-            Text("• Use neem-based products for preventive pest management.")
-
-            Text("Wheat")
-            Text("• Prepare soil using compost or farmyard manure.")
-            Text("• Maintain proper irrigation during important growth stages.")
-            Text("• Practice crop rotation to maintain soil health.")
-
-            Text("Rice")
-            Text("• Use organic manure during soil preparation.")
-            Text("• Avoid unnecessary standing water.")
-            Text("• Maintain proper field drainage.")
-
-            Text("Potato")
-            Text("• Use healthy seed tubers.")
-            Text("• Add compost or well-decomposed organic manure.")
-            Text("• Use mulching to reduce weeds and conserve moisture.")
-        }
-    }
+            🥔 Potato
+            • Use healthy seed tubers.
+            • Add compost or well-decomposed organic manure.
+            • Use mulching to reduce weeds and conserve moisture.
+        """.trimIndent()
+    )
 }
 
 @Composable
 private fun FertilizerContent() {
 
-    Card(
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    DetailCard(
+        title = "🧪 Natural Fertilizers",
+        content = """
+            🌿 Vermicompost
+            Nutrient-rich organic fertilizer produced using earthworms.
 
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
+            🌿 Compost
+            Decomposed organic material that improves soil structure and fertility.
 
-            Text("🧪 Natural Fertilizers")
+            🌿 Jeevamrut
+            Traditional microbial preparation used to support soil biological activity.
 
-            Text("Vermicompost")
-            Text("• Nutrient-rich organic fertilizer produced using earthworms.")
+            🌿 Panchagavya
+            Traditional organic preparation made from cow-derived ingredients.
 
-            Text("Compost")
-            Text("• Decomposed organic material that improves soil structure and fertility.")
+            🌿 Neem Cake
+            Organic manure that can also help manage some soil pests.
 
-            Text("Jeevamrut")
-            Text("• Traditional microbial preparation used to support soil biological activity.")
-
-            Text("Panchagavya")
-            Text("• Traditional organic preparation made from cow-derived ingredients.")
-
-            Text("Neem Cake")
-            Text("• Organic manure that can also help in managing some soil pests.")
-
-            Text("Green Manure")
-            Text("• Crops such as legumes can be grown and incorporated into soil to add organic matter.")
-        }
-    }
+            🌿 Green Manure
+            Suitable crops can be incorporated into soil to add organic matter.
+        """.trimIndent()
+    )
 }
 
 @Composable
 private fun PestManagementContent() {
 
-    Card(
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    DetailCard(
+        title = "🐛 Natural Pest Management",
+        content = """
+            🌿 Neem-Based Products
+            Can be used as part of an integrated pest-management approach.
 
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
+            🌶️ Garlic-Chilli Extract
+            Plant-based extracts may help discourage certain insect pests.
 
-            Text("🐛 Natural Pest Management")
+            🟨 Sticky Traps
+            Yellow or blue sticky traps can help monitor and reduce certain flying insects.
 
-            Text("Neem-Based Spray")
-            Text("• Neem-based products can be used as part of an integrated pest-management approach.")
+            🦋 Biological Pest Control
+            Beneficial insects and microbial biocontrol agents can help manage pests.
 
-            Text("Garlic-Chilli Extract")
-            Text("• Plant-based extracts may help discourage certain insect pests.")
-
-            Text("Sticky Traps")
-            Text("• Yellow or blue sticky traps can help monitor and reduce certain flying insects.")
-
-            Text("Biological Pest Control")
-            Text("• Beneficial insects and microbial biocontrol agents can help manage pests.")
-
-            Text("Preventive Practices")
-            Text("• Remove heavily infected plant material.")
-            Text("• Maintain field sanitation.")
-            Text("• Use healthy planting material.")
-            Text("• Inspect crops regularly.")
-        }
-    }
+            🛡️ Preventive Practices
+            • Remove heavily infected plant material.
+            • Maintain field sanitation.
+            • Use healthy planting material.
+            • Inspect crops regularly.
+        """.trimIndent()
+    )
 }
 
 @Composable
 private fun FarmingScheduleContent() {
 
-    Card(
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    DetailCard(
+        title = "📅 Organic Farming Schedule",
+        content = """
+            1️⃣ Sowing
+            Select healthy seeds and prepare soil using organic matter.
 
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
+            2️⃣ Fertilization
+            Apply compost, vermicompost or suitable organic manure according to crop requirements.
 
-            Text("📅 Organic Farming Schedule")
+            3️⃣ Irrigation
+            Provide water according to crop stage, soil condition and weather.
 
-            Text("1. Sowing")
-            Text("• Select healthy seeds and prepare the soil using organic matter.")
+            4️⃣ Pest Management
+            Regularly inspect crops and use suitable preventive and biological methods.
 
-            Text("2. Fertilization")
-            Text("• Apply compost, vermicompost or suitable organic manure according to crop requirements.")
-
-            Text("3. Irrigation")
-            Text("• Provide water according to crop stage, soil condition and weather.")
-
-            Text("4. Pest Management")
-            Text("• Regularly inspect crops and use suitable preventive and biological methods.")
-
-            Text("5. Harvesting")
-            Text("• Harvest at the appropriate maturity stage and handle produce carefully.")
-        }
-    }
+            5️⃣ Harvesting
+            Harvest at the appropriate maturity stage and handle produce carefully.
+        """.trimIndent()
+    )
 }
 
 @Composable
 private fun OrganicTipsContent() {
 
+    DetailCard(
+        title = "♻️ Organic Farming Tips",
+        content = """
+            🔄 Crop Rotation
+            Rotate different crops to improve soil health and reduce recurring pest problems.
+
+            🍂 Mulching
+            Use suitable organic mulch to conserve moisture and suppress weeds.
+
+            ♻️ Composting
+            Convert suitable farm and plant waste into useful compost.
+
+            💧 Water Conservation
+            Use efficient irrigation and avoid unnecessary water loss.
+
+            🌿 Reduce Chemical Inputs
+            Use chemical inputs only when appropriate and follow recommended agricultural practices.
+        """.trimIndent()
+    )
+}
+
+@Composable
+private fun DetailCard(
+    title: String,
+    content: String
+) {
+
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFF5F9F4)
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 3.dp
+        )
     ) {
 
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+            modifier = Modifier.padding(18.dp)
         ) {
 
-            Text("♻️ Organic Farming Tips")
+            Text(
+                text = title,
+                fontSize = 19.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF1B5E20)
+            )
 
-            Text("Crop Rotation")
-            Text("• Rotate different crops to improve soil health and reduce recurring pest problems.")
-
-            Text("Mulching")
-            Text("• Use suitable organic mulch to conserve moisture and suppress weeds.")
-
-            Text("Composting")
-            Text("• Convert suitable farm and plant waste into useful compost.")
-
-            Text("Water Conservation")
-            Text("• Use efficient irrigation and avoid unnecessary water loss.")
-
-            Text("Reduce Chemical Inputs")
-            Text("• Use chemical inputs only when appropriate and follow recommended agricultural practices.")
+            Text(
+                text = content,
+                fontSize = 14.sp,
+                lineHeight = 21.sp,
+                modifier = Modifier.padding(top = 12.dp)
+            )
         }
     }
 }
