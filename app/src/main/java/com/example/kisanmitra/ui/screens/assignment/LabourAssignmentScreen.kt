@@ -1,5 +1,6 @@
 package com.example.kisanmitra.ui.screens.assignment
 
+import android.app.DatePickerDialog
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,9 +24,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kisanmitra.data.LabourAssignment
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,6 +36,8 @@ fun LabourAssignmentScreen(
     onBack: () -> Unit,
     viewModel: LabourAssignmentViewModel = viewModel()
 ) {
+
+    val context = LocalContext.current
 
     val assignments by viewModel.assignments.collectAsState(
         initial = emptyList()
@@ -92,6 +97,10 @@ fun LabourAssignmentScreen(
 
     var assignmentDate by remember {
         mutableStateOf("")
+    }
+
+    val calendar = remember {
+        Calendar.getInstance()
     }
 
     Column(
@@ -405,9 +414,8 @@ fun LabourAssignmentScreen(
 
         OutlinedTextField(
             value = assignmentDate,
-            onValueChange = {
-                assignmentDate = it
-            },
+            onValueChange = {},
+            readOnly = true,
             label = {
                 Text("Assignment Date")
             },
@@ -418,6 +426,34 @@ fun LabourAssignmentScreen(
                 .fillMaxWidth()
                 .padding(top = 8.dp)
         )
+
+        Button(
+            onClick = {
+
+                val datePicker = DatePickerDialog(
+                    context,
+                    { _, year, month, dayOfMonth ->
+
+                        assignmentDate = String.format(
+                            "%02d/%02d/%04d",
+                            dayOfMonth,
+                            month + 1,
+                            year
+                        )
+                    },
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)
+                )
+
+                datePicker.show()
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+        ) {
+            Text("Select Assignment Date")
+        }
 
         // -------------------------
         // Assign Labour

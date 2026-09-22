@@ -1,5 +1,6 @@
 package com.example.kisanmitra.ui.screens.attendance
 
+import android.app.DatePickerDialog
 import android.speech.tts.TextToSpeech
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kisanmitra.data.Attendance
 import com.example.kisanmitra.data.Labour
+import java.util.Calendar
 import java.util.Locale
 
 @Composable
@@ -37,6 +39,10 @@ fun AttendanceScreen(
 ) {
 
     val context = LocalContext.current
+
+    val calendar = remember {
+        Calendar.getInstance()
+    }
 
     val labourers by viewModel.labourers.collectAsState(
         initial = emptyList()
@@ -165,16 +171,46 @@ fun AttendanceScreen(
 
             OutlinedTextField(
                 value = date,
-                onValueChange = {
-                    date = it
-                },
+                onValueChange = {},
+                readOnly = true,
                 label = {
                     Text("Date")
+                },
+                placeholder = {
+                    Text("DD/MM/YYYY")
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp)
             )
+
+            Button(
+                onClick = {
+
+                    val datePicker = DatePickerDialog(
+                        context,
+                        { _, year, month, dayOfMonth ->
+
+                            date = String.format(
+                                "%02d/%02d/%04d",
+                                dayOfMonth,
+                                month + 1,
+                                year
+                            )
+                        },
+                        calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH),
+                        calendar.get(Calendar.DAY_OF_MONTH)
+                    )
+
+                    datePicker.show()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+            ) {
+                Text("Select Attendance Date")
+            }
 
             OutlinedTextField(
                 value = taskName,
