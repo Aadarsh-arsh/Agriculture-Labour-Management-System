@@ -35,9 +35,17 @@ class WageViewModel(
         attendanceList: List<Attendance>
     ) {
 
+        if (labour.id <= 0 || labour.dailyWage <= 0) {
+            return
+        }
+
         val presentDays = attendanceList.count {
             it.labourId == labour.id &&
-                    it.status == "Present"
+                    it.status.trim().equals("Present", ignoreCase = true)
+        }
+
+        if (presentDays <= 0) {
+            return
         }
 
         val totalWage =
@@ -48,7 +56,7 @@ class WageViewModel(
             repository.insertWage(
                 Wage(
                     labourId = labour.id,
-                    labourName = labour.name,
+                    labourName = labour.name.trim(),
                     dailyWage = labour.dailyWage,
                     presentDays = presentDays,
                     totalWage = totalWage
