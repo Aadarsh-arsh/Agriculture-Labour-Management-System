@@ -26,87 +26,65 @@ import com.example.kisanmitra.ui.components.DashboardCard
 fun DashboardScreen(
     onNavigate: (String) -> Unit
 ) {
-
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-
-        // ---------------------------------------------------------
-        // APP HEADER
-        // ---------------------------------------------------------
 
         Text(
             text = "🌿 KisanMitra2",
-            fontSize = 28.sp,
+            fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF1B5E20)
         )
 
         Text(
-            text = "Farmer Dashboard",
-            fontSize = 16.sp,
+            text = "Smart Farmer Management",
+            fontSize = 15.sp,
             color = Color(0xFF616161)
         )
-
-        // ---------------------------------------------------------
-        // WELCOME CARD
-        // ---------------------------------------------------------
 
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 6.dp),
-            shape = RoundedCornerShape(22.dp),
+                .padding(top = 4.dp),
+            shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(
                 containerColor = Color(0xFFE8F5E9)
             ),
             elevation = CardDefaults.cardElevation(
-                defaultElevation = 2.dp
+                defaultElevation = 3.dp
             )
         ) {
-
             Column(
                 modifier = Modifier.padding(20.dp)
             ) {
-
                 Text(
                     text = "Welcome, Farmer 👋",
-                    fontSize = 21.sp,
+                    fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF1B5E20)
                 )
 
                 Text(
-                    text = "Manage your farm, crops and agricultural labour from one place.",
+                    text = "Manage your farm, crops, labour, attendance and wages from one place.",
                     fontSize = 14.sp,
-                    lineHeight = 20.sp,
+                    lineHeight = 21.sp,
                     color = Color(0xFF424242),
                     modifier = Modifier.padding(top = 8.dp)
                 )
             }
         }
 
-        // ---------------------------------------------------------
-        // QUICK OVERVIEW
-        // ---------------------------------------------------------
-
-        Text(
-            text = "Quick Overview",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF212121),
-            modifier = Modifier.padding(top = 14.dp)
-        )
+        SectionTitle("Quick Overview")
 
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-
             OverviewCard(
                 icon = "👷",
                 title = "Labour",
@@ -126,17 +104,7 @@ fun DashboardScreen(
             )
         }
 
-        // ---------------------------------------------------------
-        // FARM & LABOUR
-        // ---------------------------------------------------------
-
-        Text(
-            text = "Farm & Labour",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF212121),
-            modifier = Modifier.padding(top = 14.dp)
-        )
+        SectionTitle("Farm & Labour")
 
         DashboardCard(
             icon = "👷",
@@ -186,23 +154,13 @@ fun DashboardScreen(
         DashboardCard(
             icon = "💰",
             title = "Wage Calculation",
-            description = "Calculate labour wages based on attendance",
+            description = "Calculate labour wages from attendance",
             onClick = {
                 onNavigate(Screen.Wage.route)
             }
         )
 
-        // ---------------------------------------------------------
-        // CROP MANAGEMENT
-        // ---------------------------------------------------------
-
-        Text(
-            text = "Crop Management",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF212121),
-            modifier = Modifier.padding(top = 14.dp)
-        )
+        SectionTitle("Crop Management")
 
         DashboardCard(
             icon = "🌱",
@@ -231,25 +189,51 @@ fun DashboardScreen(
             }
         )
 
-        // ---------------------------------------------------------
-        // PROJECT INFORMATION
-        // ---------------------------------------------------------
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp, bottom = 12.dp),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color(0xFFF5F9F4)
+            )
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(
+                    text = "About KisanMitra2",
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1B5E20)
+                )
 
-        Text(
-            text = "KisanMitra2",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF1B5E20),
-            modifier = Modifier.padding(top = 18.dp)
-        )
-
-        Text(
-            text = "Farmer-focused agricultural labour and crop management system",
-            fontSize = 13.sp,
-            color = Color(0xFF616161),
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
+                Text(
+                    text = "A farmer-focused agricultural labour and crop management system.",
+                    fontSize = 13.sp,
+                    lineHeight = 19.sp,
+                    color = Color(0xFF616161),
+                    modifier = Modifier.padding(top = 6.dp)
+                )
+            }
+        }
     }
+}
+
+@Composable
+private fun SectionTitle(
+    title: String
+) {
+    Text(
+        text = title,
+        fontSize = 20.sp,
+        fontWeight = FontWeight.Bold,
+        color = Color(0xFF212121),
+        modifier = Modifier.padding(
+            top = 8.dp,
+            bottom = 2.dp
+        )
+    )
 }
 
 @Composable
@@ -258,7 +242,6 @@ private fun OverviewCard(
     title: String,
     modifier: Modifier = Modifier
 ) {
-
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(18.dp),
@@ -269,15 +252,15 @@ private fun OverviewCard(
             defaultElevation = 2.dp
         )
     ) {
-
         Column(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Text(
                 text = icon,
-                fontSize = 24.sp
+                fontSize = 25.sp
             )
 
             Text(
