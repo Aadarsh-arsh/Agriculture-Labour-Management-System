@@ -29,11 +29,18 @@ class CropStageViewModel(
         endDate: String,
         notes: String
     ) {
+
+        val cleanCropName = cropName.trim()
+        val cleanStageName = stageName.trim()
+        val cleanStartDate = startDate.trim()
+        val cleanEndDate = endDate.trim()
+        val cleanNotes = notes.trim()
+
         if (
-            cropName.isBlank() ||
-            stageName.isBlank() ||
-            startDate.isBlank() ||
-            endDate.isBlank()
+            cleanCropName.isBlank() ||
+            cleanStageName.isBlank() ||
+            cleanStartDate.isBlank() ||
+            cleanEndDate.isBlank()
         ) {
             return
         }
@@ -41,11 +48,11 @@ class CropStageViewModel(
         viewModelScope.launch {
             repository.insertCropStage(
                 CropStage(
-                    cropName = cropName,
-                    stageName = stageName,
-                    startDate = startDate,
-                    endDate = endDate,
-                    notes = notes
+                    cropName = cleanCropName,
+                    stageName = cleanStageName,
+                    startDate = cleanStartDate,
+                    endDate = cleanEndDate,
+                    notes = cleanNotes
                 )
             )
         }
