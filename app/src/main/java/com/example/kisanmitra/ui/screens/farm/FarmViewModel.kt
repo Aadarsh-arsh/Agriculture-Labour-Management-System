@@ -26,12 +26,20 @@ class FarmViewModel(
         landArea: String
     ) {
 
-        val area = landArea.toDoubleOrNull() ?: return
+        val cleanFarmName = farmName.trim()
+        val cleanLocation = location.trim()
+        val area = landArea.trim().toDoubleOrNull()
 
+        // Validate required fields
         if (
-            farmName.isBlank() ||
-            location.isBlank()
+            cleanFarmName.isBlank() ||
+            cleanLocation.isBlank()
         ) {
+            return
+        }
+
+        // Validate land area
+        if (area == null || area <= 0) {
             return
         }
 
@@ -39,8 +47,8 @@ class FarmViewModel(
 
             repository.insertFarm(
                 Farm(
-                    farmName = farmName,
-                    location = location,
+                    farmName = cleanFarmName,
+                    location = cleanLocation,
                     landArea = area
                 )
             )
