@@ -27,11 +27,16 @@ class CropViewModel(
         cropStage: String
     ) {
 
+        val cleanCropName = cropName.trim()
+        val cleanFarmName = farmName.trim()
+        val cleanSowingDate = sowingDate.trim()
+        val cleanCropStage = cropStage.trim()
+
         if (
-            cropName.isBlank() ||
-            farmName.isBlank() ||
-            sowingDate.isBlank() ||
-            cropStage.isBlank()
+            cleanCropName.isBlank() ||
+            cleanFarmName.isBlank() ||
+            cleanSowingDate.isBlank() ||
+            cleanCropStage.isBlank()
         ) {
             return
         }
@@ -40,10 +45,10 @@ class CropViewModel(
 
             repository.insertCrop(
                 Crop(
-                    cropName = cropName,
-                    farmName = farmName,
-                    sowingDate = sowingDate,
-                    cropStage = cropStage
+                    cropName = cleanCropName,
+                    farmName = cleanFarmName,
+                    sowingDate = cleanSowingDate,
+                    cropStage = cleanCropStage
                 )
             )
         }
