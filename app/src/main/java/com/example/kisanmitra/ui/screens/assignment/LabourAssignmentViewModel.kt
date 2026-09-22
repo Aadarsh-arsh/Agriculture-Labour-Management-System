@@ -12,7 +12,8 @@ class LabourAssignmentViewModel(
     application: Application
 ) : AndroidViewModel(application) {
 
-    private val database = KisanMitraDatabase.getDatabase(application)
+    private val database =
+        KisanMitraDatabase.getDatabase(application)
 
     private val repository =
         LabourAssignmentRepository(database.labourAssignmentDao())
@@ -28,12 +29,19 @@ class LabourAssignmentViewModel(
         assignmentDate: String
     ) {
 
+        val cleanLabourName = labourName.trim()
+        val cleanFarmName = farmName.trim()
+        val cleanCropName = cropName.trim()
+        val cleanTaskName = taskName.trim()
+        val cleanAssignmentDate = assignmentDate.trim()
+
         if (
-            labourName.isBlank() ||
-            farmName.isBlank() ||
-            cropName.isBlank() ||
-            taskName.isBlank() ||
-            assignmentDate.isBlank()
+            labourId <= 0 ||
+            cleanLabourName.isBlank() ||
+            cleanFarmName.isBlank() ||
+            cleanCropName.isBlank() ||
+            cleanTaskName.isBlank() ||
+            cleanAssignmentDate.isBlank()
         ) {
             return
         }
@@ -43,11 +51,11 @@ class LabourAssignmentViewModel(
             repository.insertAssignment(
                 LabourAssignment(
                     labourId = labourId,
-                    labourName = labourName,
-                    farmName = farmName,
-                    cropName = cropName,
-                    taskName = taskName,
-                    assignmentDate = assignmentDate
+                    labourName = cleanLabourName,
+                    farmName = cleanFarmName,
+                    cropName = cleanCropName,
+                    taskName = cleanTaskName,
+                    assignmentDate = cleanAssignmentDate
                 )
             )
         }
