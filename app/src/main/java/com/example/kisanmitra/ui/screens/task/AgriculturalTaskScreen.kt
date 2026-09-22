@@ -1,5 +1,6 @@
 package com.example.kisanmitra.ui.screens.task
 
+import android.app.DatePickerDialog
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,9 +20,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kisanmitra.data.AgriculturalTask
+import java.util.Calendar
 
 @Composable
 fun AgriculturalTaskScreen(
@@ -29,6 +32,8 @@ fun AgriculturalTaskScreen(
     onAssignLabour: () -> Unit,
     viewModel: AgriculturalTaskViewModel = viewModel()
 ) {
+
+    val context = LocalContext.current
 
     val tasks by viewModel.tasks.collectAsState(
         initial = emptyList()
@@ -48,6 +53,10 @@ fun AgriculturalTaskScreen(
 
     var status by remember {
         mutableStateOf("")
+    }
+
+    val calendar = remember {
+        Calendar.getInstance()
     }
 
     Column(
@@ -88,9 +97,8 @@ fun AgriculturalTaskScreen(
 
         OutlinedTextField(
             value = taskDate,
-            onValueChange = {
-                taskDate = it
-            },
+            onValueChange = {},
+            readOnly = true,
             label = {
                 Text("Task Date")
             },
@@ -101,6 +109,34 @@ fun AgriculturalTaskScreen(
                 .fillMaxWidth()
                 .padding(top = 8.dp)
         )
+
+        Button(
+            onClick = {
+
+                val datePicker = DatePickerDialog(
+                    context,
+                    { _, year, month, dayOfMonth ->
+
+                        taskDate = String.format(
+                            "%02d/%02d/%04d",
+                            dayOfMonth,
+                            month + 1,
+                            year
+                        )
+                    },
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)
+                )
+
+                datePicker.show()
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+        ) {
+            Text("Select Task Date")
+        }
 
         OutlinedTextField(
             value = status,
