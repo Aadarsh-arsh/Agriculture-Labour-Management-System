@@ -1,6 +1,8 @@
 package com.example.kisanmitra.ui.screens.dashboard
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,85 +28,151 @@ import com.example.kisanmitra.ui.components.DashboardCard
 fun DashboardScreen(
     onNavigate: (String) -> Unit
 ) {
+
+    val darkGreen = Color(0xFF1B5E20)
+    val mediumGreen = Color(0xFF2E7D32)
+    val lightGreen = Color(0xFFE8F5E9)
+    val softGreen = Color(0xFFF4F8F3)
+    val textDark = Color(0xFF263238)
+    val textGrey = Color(0xFF607D8B)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color(0xFFFAFCF9))
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .padding(horizontal = 16.dp, vertical = 18.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
 
-        Text(
-            text = "🌿 KisanMitra2",
-            fontSize = 30.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF1B5E20)
-        )
-
-        Text(
-            text = "Smart Farmer Management",
-            fontSize = 15.sp,
-            color = Color(0xFF616161)
-        )
-
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 4.dp),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color(0xFFE8F5E9)
-            ),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 3.dp
-            )
+        // Header
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
+
             Column(
-                modifier = Modifier.padding(20.dp)
+                modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = "Welcome, Farmer 👋",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1B5E20)
+                    text = "KisanMitra2",
+                    fontSize = 29.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = darkGreen
                 )
 
                 Text(
-                    text = "Manage your farm, crops, labour, attendance and wages from one place.",
+                    text = "Smart Farmer Management",
                     fontSize = 14.sp,
-                    lineHeight = 21.sp,
-                    color = Color(0xFF424242),
-                    modifier = Modifier.padding(top = 8.dp)
+                    color = textGrey,
+                    modifier = Modifier.padding(top = 3.dp)
+                )
+            }
+
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = lightGreen
+                )
+            ) {
+                Text(
+                    text = "🌿",
+                    fontSize = 27.sp,
+                    modifier = Modifier.padding(10.dp)
                 )
             }
         }
 
-        SectionTitle("Quick Overview")
+        // Welcome card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(26.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = darkGreen
+            ),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 5.dp
+            )
+        ) {
+
+            Column(
+                modifier = Modifier.padding(22.dp)
+            ) {
+
+                Text(
+                    text = "Welcome, Farmer 👋",
+                    fontSize = 23.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+
+                Text(
+                    text = "Manage your farm, crops, labour and daily agricultural activities from one place.",
+                    fontSize = 14.sp,
+                    lineHeight = 21.sp,
+                    color = Color(0xFFE8F5E9),
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFF2E7D32)
+                    )
+                ) {
+                    Text(
+                        text = "🌱  Your farm. Your data. Your control.",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.White,
+                        modifier = Modifier.padding(13.dp)
+                    )
+                }
+            }
+        }
+
+        SectionTitle(
+            title = "Quick Overview",
+            subtitle = "Your farm management at a glance"
+        )
 
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
+
             OverviewCard(
                 icon = "👷",
                 title = "Labour",
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                backgroundColor = Color(0xFFFFF8E1),
+                iconBackground = Color(0xFFFFECB3)
             )
 
             OverviewCard(
-                icon = "🌾",
+                icon = "🚜",
                 title = "Farms",
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                backgroundColor = Color(0xFFE3F2FD),
+                iconBackground = Color(0xFFBBDEFB)
             )
 
             OverviewCard(
                 icon = "🌱",
                 title = "Crops",
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                backgroundColor = Color(0xFFE8F5E9),
+                iconBackground = Color(0xFFC8E6C9)
             )
         }
 
-        SectionTitle("Farm & Labour")
+        SectionTitle(
+            title = "Farm & Labour",
+            subtitle = "Manage your workforce and daily operations"
+        )
 
         DashboardCard(
             icon = "👷",
@@ -116,7 +184,7 @@ fun DashboardScreen(
         )
 
         DashboardCard(
-            icon = "🌾",
+            icon = "🚜",
             title = "Farm Management",
             description = "Manage farms and agricultural land",
             onClick = {
@@ -160,7 +228,10 @@ fun DashboardScreen(
             }
         )
 
-        SectionTitle("Crop Management")
+        SectionTitle(
+            title = "Crop Management",
+            subtitle = "Plan, monitor and manage your crops"
+        )
 
         DashboardCard(
             icon = "🌱",
@@ -189,31 +260,45 @@ fun DashboardScreen(
             }
         )
 
+        // About card
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp, bottom = 12.dp),
-            shape = RoundedCornerShape(20.dp),
+                .padding(top = 4.dp, bottom = 10.dp),
+            shape = RoundedCornerShape(22.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Color(0xFFF5F9F4)
+                containerColor = softGreen
+            ),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 1.dp
             )
         ) {
+
             Column(
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(18.dp)
             ) {
+
                 Text(
                     text = "About KisanMitra2",
-                    fontSize = 17.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1B5E20)
+                    color = darkGreen
                 )
 
                 Text(
-                    text = "A farmer-focused agricultural labour and crop management system.",
+                    text = "A farmer-focused agricultural labour and crop management system designed to simplify everyday farm operations.",
                     fontSize = 13.sp,
-                    lineHeight = 19.sp,
-                    color = Color(0xFF616161),
-                    modifier = Modifier.padding(top = 6.dp)
+                    lineHeight = 20.sp,
+                    color = textDark,
+                    modifier = Modifier.padding(top = 7.dp)
+                )
+
+                Text(
+                    text = "🌾 Manage • 📋 Plan • 👷 Assign • 🗣️ Track • 💰 Calculate",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = mediumGreen,
+                    modifier = Modifier.padding(top = 12.dp)
                 )
             }
         }
@@ -222,53 +307,81 @@ fun DashboardScreen(
 
 @Composable
 private fun SectionTitle(
-    title: String
+    title: String,
+    subtitle: String
 ) {
-    Text(
-        text = title,
-        fontSize = 20.sp,
-        fontWeight = FontWeight.Bold,
-        color = Color(0xFF212121),
+
+    Column(
         modifier = Modifier.padding(
-            top = 8.dp,
-            bottom = 2.dp
+            top = 5.dp,
+            bottom = 1.dp
         )
-    )
+    ) {
+
+        Text(
+            text = title,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF263238)
+        )
+
+        Text(
+            text = subtitle,
+            fontSize = 12.sp,
+            color = Color(0xFF78909C),
+            modifier = Modifier.padding(top = 2.dp)
+        )
+    }
 }
 
 @Composable
 private fun OverviewCard(
     icon: String,
     title: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    backgroundColor: Color,
+    iconBackground: Color
 ) {
+
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFF5F9F4)
+            containerColor = backgroundColor
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 2.dp
         )
     ) {
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp),
+                .padding(vertical = 14.dp, horizontal = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = icon,
-                fontSize = 25.sp
-            )
+
+            Box(
+                modifier = Modifier
+                    .background(
+                        color = iconBackground,
+                        shape = RoundedCornerShape(14.dp)
+                    )
+                    .padding(8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = icon,
+                    fontSize = 23.sp
+                )
+            }
 
             Text(
                 text = title,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF1B5E20),
-                modifier = Modifier.padding(top = 5.dp)
+                modifier = Modifier.padding(top = 7.dp)
             )
         }
     }
