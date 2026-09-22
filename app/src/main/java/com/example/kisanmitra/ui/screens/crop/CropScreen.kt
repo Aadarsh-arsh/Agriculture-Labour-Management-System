@@ -1,5 +1,6 @@
 package com.example.kisanmitra.ui.screens.crop
 
+import android.app.DatePickerDialog
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,9 +20,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kisanmitra.data.Crop
+import java.util.Calendar
 
 @Composable
 fun CropScreen(
@@ -31,6 +34,8 @@ fun CropScreen(
     viewModel: CropViewModel = viewModel()
 ) {
 
+    val context = LocalContext.current
+
     val crops by viewModel.crops.collectAsState(
         initial = emptyList()
     )
@@ -39,6 +44,10 @@ fun CropScreen(
     var farmName by remember { mutableStateOf("") }
     var sowingDate by remember { mutableStateOf("") }
     var cropStage by remember { mutableStateOf("") }
+
+    val calendar = remember {
+        Calendar.getInstance()
+    }
 
     Column(
         modifier = Modifier
@@ -70,12 +79,49 @@ fun CropScreen(
 
         OutlinedTextField(
             value = sowingDate,
-            onValueChange = { sowingDate = it },
+            onValueChange = {},
+            readOnly = true,
             label = { Text("Sowing Date") },
+            placeholder = { Text("DD/MM/YYYY") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            trailingIcon = {
+                Text(
+                    text = "📅",
+                    modifier = Modifier.padding(end = 12.dp)
+                )
+            }
+        )
+
+        Button(
+            onClick = {
+
+                val datePicker = DatePickerDialog(
+                    context,
+                    { _, year, month, dayOfMonth ->
+
+                        sowingDate =
+                            String.format(
+                                "%02d/%02d/%04d",
+                                dayOfMonth,
+                                month + 1,
+                                year
+                            )
+                    },
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)
+                )
+
+                datePicker.show()
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
-        )
+        ) {
+            Text("Select Sowing Date")
+        }
 
         OutlinedTextField(
             value = cropStage,
