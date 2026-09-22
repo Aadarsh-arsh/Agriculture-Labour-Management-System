@@ -15,6 +15,9 @@ interface WageDao {
     @Delete
     suspend fun deleteWage(wage: Wage)
 
+    @Query("DELETE FROM wages WHERE labourId = :labourId")
+    suspend fun deleteWagesForLabour(labourId: Int)
+
     @Query("SELECT * FROM wages ORDER BY labourName ASC")
     fun getAllWages(): Flow<List<Wage>>
 }

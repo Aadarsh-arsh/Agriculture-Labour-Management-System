@@ -16,4 +16,8 @@ class WageRepository(
     suspend fun deleteWage(wage: Wage) {
         wageDao.deleteWage(wage)
     }
+
+    suspend fun deleteWagesForLabour(labourId: Int) {
+        wageDao.deleteWagesForLabour(labourId)
+    }
 }

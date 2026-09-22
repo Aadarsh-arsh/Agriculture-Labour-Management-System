@@ -53,6 +53,10 @@ class WageViewModel(
 
         viewModelScope.launch {
 
+            // Remove the previous wage record for this labourer
+            repository.deleteWagesForLabour(labour.id)
+
+            // Save the latest calculated wage
             repository.insertWage(
                 Wage(
                     labourId = labour.id,
