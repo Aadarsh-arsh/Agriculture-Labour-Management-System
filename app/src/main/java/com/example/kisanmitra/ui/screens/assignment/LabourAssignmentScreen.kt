@@ -10,6 +10,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kisanmitra.data.LabourAssignment
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LabourAssignmentScreen(
     onBack: () -> Unit,
@@ -33,8 +38,14 @@ fun LabourAssignmentScreen(
         initial = emptyList()
     )
 
-    var labourId by remember { mutableStateOf("") }
-    var labourName by remember { mutableStateOf("") }
+    val labourers by viewModel.labourers.collectAsState(
+        initial = emptyList()
+    )
+
+    var selectedLabourId by remember { mutableStateOf(0) }
+    var selectedLabourName by remember { mutableStateOf("") }
+    var labourDropdownExpanded by remember { mutableStateOf(false) }
+
     var farmName by remember { mutableStateOf("") }
     var cropName by remember { mutableStateOf("") }
     var taskName by remember { mutableStateOf("") }
@@ -50,28 +61,84 @@ fun LabourAssignmentScreen(
             text = "Labour Assignment"
         )
 
-        OutlinedTextField(
-            value = labourId,
-            onValueChange = { labourId = it },
-            label = { Text("Labour ID") },
+        // Labour Selection
+        ExposedDropdownMenuBox(
+            expanded = labourDropdownExpanded,
+            onExpandedChange = {
+                labourDropdownExpanded = !labourDropdownExpanded
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 12.dp)
-        )
+        ) {
 
-        OutlinedTextField(
-            value = labourName,
-            onValueChange = { labourName = it },
-            label = { Text("Labour Name") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
-        )
+            OutlinedTextField(
+                value = selectedLabourName,
+                onValueChange = {},
+                readOnly = true,
+                label = {
+                    Text("Select Labour")
+                },
+                placeholder = {
+                    Text("Choose registered labour")
+                },
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(
+                        expanded = labourDropdownExpanded
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor()
+            )
+
+            ExposedDropdownMenu(
+                expanded = labourDropdownExpanded,
+                onDismissRequest = {
+                    labourDropdownExpanded = false
+                }
+            ) {
+
+                if (labourers.isEmpty()) {
+
+                    DropdownMenuItem(
+                        text = {
+                            Text("No labourers registered")
+                        },
+                        onClick = {
+                            labourDropdownExpanded = false
+                        }
+                    )
+
+                } else {
+
+                    labourers.forEach { labour ->
+
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    "${labour.name} - ID ${labour.id}"
+                                )
+                            },
+                            onClick = {
+
+                                selectedLabourId = labour.id
+                                selectedLabourName = labour.name
+
+                                labourDropdownExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
 
         OutlinedTextField(
             value = farmName,
             onValueChange = { farmName = it },
-            label = { Text("Farm Name") },
+            label = {
+                Text("Farm Name")
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
@@ -80,7 +147,9 @@ fun LabourAssignmentScreen(
         OutlinedTextField(
             value = cropName,
             onValueChange = { cropName = it },
-            label = { Text("Crop Name") },
+            label = {
+                Text("Crop Name")
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
@@ -89,7 +158,9 @@ fun LabourAssignmentScreen(
         OutlinedTextField(
             value = taskName,
             onValueChange = { taskName = it },
-            label = { Text("Agricultural Task") },
+            label = {
+                Text("Agricultural Task")
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
@@ -98,7 +169,9 @@ fun LabourAssignmentScreen(
         OutlinedTextField(
             value = assignmentDate,
             onValueChange = { assignmentDate = it },
-            label = { Text("Assignment Date") },
+            label = {
+                Text("Assignment Date")
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
@@ -108,20 +181,21 @@ fun LabourAssignmentScreen(
             onClick = {
 
                 viewModel.addAssignment(
-                    labourId = labourId.toIntOrNull() ?: 0,
-                    labourName = labourName,
+                    labourId = selectedLabourId,
+                    labourName = selectedLabourName,
                     farmName = farmName,
                     cropName = cropName,
                     taskName = taskName,
                     assignmentDate = assignmentDate
                 )
 
-                labourId = ""
-                labourName = ""
+                selectedLabourId = 0
+                selectedLabourName = ""
                 farmName = ""
                 cropName = ""
                 taskName = ""
                 assignmentDate = ""
+
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -181,6 +255,10 @@ private fun AssignmentCard(
 
             Text(
                 text = assignment.labourName
+            )
+
+            Text(
+                text = "Labour ID: ${assignment.labourId}"
             )
 
             Text(

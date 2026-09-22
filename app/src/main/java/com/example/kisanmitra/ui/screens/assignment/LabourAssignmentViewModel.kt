@@ -4,8 +4,10 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kisanmitra.data.KisanMitraDatabase
+import com.example.kisanmitra.data.Labour
 import com.example.kisanmitra.data.LabourAssignment
 import com.example.kisanmitra.data.LabourAssignmentRepository
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class LabourAssignmentViewModel(
@@ -19,6 +21,10 @@ class LabourAssignmentViewModel(
         LabourAssignmentRepository(database.labourAssignmentDao())
 
     val assignments = repository.allAssignments
+
+    // Registered labourers from Room database
+    val labourers: Flow<List<Labour>> =
+        database.labourDao().getAllLabourers()
 
     fun addAssignment(
         labourId: Int,
