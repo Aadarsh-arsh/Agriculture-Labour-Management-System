@@ -22,7 +22,6 @@ class AttendanceViewModel(
 
     val attendance = repository.allAttendance
 
-    // Get all registered labourers
     val labourers: Flow<List<Labour>> =
         database.labourDao().getAllLabourers()
 
@@ -33,29 +32,50 @@ class AttendanceViewModel(
         status: String,
         taskName: String
     ) {
+
+        val cleanLabourName = labourName.trim()
+        val cleanDate = date.trim()
+        val cleanStatus = status.trim()
+        val cleanTaskName = taskName.trim()
+
         if (
-            labourName.isBlank() ||
-            date.isBlank() ||
-            status.isBlank() ||
-            taskName.isBlank()
+            labourId <= 0 ||
+            cleanLabourName.isBlank() ||
+            cleanDate.isBlank() ||
+            cleanStatus.isBlank() ||
+            cleanTaskName.isBlank()
         ) {
             return
         }
 
         viewModelScope.launch {
+
+            val existingCount =
+                repository.getAttendanceCount(
+                    labourId = labourId,
+                    date = cleanDate,
+                    taskName = cleanTaskName
+                )
+
+            // Prevent duplicate attendance
+            if (existingCount > 0) {
+                return@launch
+            }
+
             repository.insertAttendance(
                 Attendance(
                     labourId = labourId,
-                    labourName = labourName,
-                    date = date,
-                    status = status,
-                    taskName = taskName
+                    labourName = cleanLabourName,
+                    date = cleanDate,
+                    status = cleanStatus,
+                    taskName = cleanTaskName
                 )
             )
         }
     }
 
     fun deleteAttendance(attendance: Attendance) {
+
         viewModelScope.launch {
             repository.deleteAttendance(attendance)
         }

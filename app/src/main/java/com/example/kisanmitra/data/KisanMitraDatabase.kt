@@ -43,6 +43,7 @@ abstract class KisanMitraDatabase : RoomDatabase() {
         private var INSTANCE: KisanMitraDatabase? = null
 
         fun getDatabase(context: Context): KisanMitraDatabase {
+
             return INSTANCE ?: synchronized(this) {
 
                 val instance = Room.databaseBuilder(
@@ -54,6 +55,7 @@ abstract class KisanMitraDatabase : RoomDatabase() {
                     .build()
 
                 INSTANCE = instance
+
                 instance
             }
         }

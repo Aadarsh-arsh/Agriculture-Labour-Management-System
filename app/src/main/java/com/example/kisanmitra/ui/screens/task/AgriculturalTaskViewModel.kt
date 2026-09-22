@@ -16,9 +16,12 @@ class AgriculturalTaskViewModel(
         KisanMitraDatabase.getDatabase(application)
 
     private val repository =
-        AgriculturalTaskRepository(database.agriculturalTaskDao())
+        AgriculturalTaskRepository(
+            database.agriculturalTaskDao()
+        )
 
-    val tasks = repository.allTasks
+    val tasks =
+        repository.allTasks
 
     fun addTask(
         taskName: String,
@@ -54,7 +57,9 @@ class AgriculturalTaskViewModel(
         }
     }
 
-    fun deleteTask(task: AgriculturalTask) {
+    fun deleteTask(
+        task: AgriculturalTask
+    ) {
 
         viewModelScope.launch {
             repository.deleteTask(task)

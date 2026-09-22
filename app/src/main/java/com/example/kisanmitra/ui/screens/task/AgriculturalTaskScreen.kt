@@ -34,10 +34,21 @@ fun AgriculturalTaskScreen(
         initial = emptyList()
     )
 
-    var taskName by remember { mutableStateOf("") }
-    var cropName by remember { mutableStateOf("") }
-    var taskDate by remember { mutableStateOf("") }
-    var status by remember { mutableStateOf("") }
+    var taskName by remember {
+        mutableStateOf("")
+    }
+
+    var cropName by remember {
+        mutableStateOf("")
+    }
+
+    var taskDate by remember {
+        mutableStateOf("")
+    }
+
+    var status by remember {
+        mutableStateOf("")
+    }
 
     Column(
         modifier = Modifier
@@ -51,8 +62,12 @@ fun AgriculturalTaskScreen(
 
         OutlinedTextField(
             value = taskName,
-            onValueChange = { taskName = it },
-            label = { Text("Task Name") },
+            onValueChange = {
+                taskName = it
+            },
+            label = {
+                Text("Task Name")
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 12.dp)
@@ -60,8 +75,12 @@ fun AgriculturalTaskScreen(
 
         OutlinedTextField(
             value = cropName,
-            onValueChange = { cropName = it },
-            label = { Text("Crop Name") },
+            onValueChange = {
+                cropName = it
+            },
+            label = {
+                Text("Crop Name")
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
@@ -69,9 +88,15 @@ fun AgriculturalTaskScreen(
 
         OutlinedTextField(
             value = taskDate,
-            onValueChange = { taskDate = it },
-            label = { Text("Task Date") },
-            placeholder = { Text("DD/MM/YYYY") },
+            onValueChange = {
+                taskDate = it
+            },
+            label = {
+                Text("Task Date")
+            },
+            placeholder = {
+                Text("DD/MM/YYYY")
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
@@ -79,9 +104,15 @@ fun AgriculturalTaskScreen(
 
         OutlinedTextField(
             value = status,
-            onValueChange = { status = it },
-            label = { Text("Status") },
-            placeholder = { Text("Pending / In Progress / Completed") },
+            onValueChange = {
+                status = it
+            },
+            label = {
+                Text("Status")
+            },
+            placeholder = {
+                Text("Pending / In Progress / Completed")
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
@@ -123,7 +154,9 @@ fun AgriculturalTaskScreen(
 
             items(
                 items = tasks,
-                key = { it.id }
+                key = {
+                    it.id
+                }
             ) { task ->
 
                 AgriculturalTaskCard(

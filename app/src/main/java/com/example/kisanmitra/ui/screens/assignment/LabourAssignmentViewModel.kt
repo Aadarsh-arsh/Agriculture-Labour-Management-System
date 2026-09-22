@@ -3,6 +3,8 @@ package com.example.kisanmitra.ui.screens.assignment
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.kisanmitra.data.AgriculturalTask
+import com.example.kisanmitra.data.Crop
 import com.example.kisanmitra.data.Farm
 import com.example.kisanmitra.data.KisanMitraDatabase
 import com.example.kisanmitra.data.Labour
@@ -19,17 +21,24 @@ class LabourAssignmentViewModel(
         KisanMitraDatabase.getDatabase(application)
 
     private val repository =
-        LabourAssignmentRepository(database.labourAssignmentDao())
+        LabourAssignmentRepository(
+            database.labourAssignmentDao()
+        )
 
-    val assignments = repository.allAssignments
+    val assignments =
+        repository.allAssignments
 
-    // Registered labourers from Room database
     val labourers: Flow<List<Labour>> =
         database.labourDao().getAllLabourers()
 
-    // Registered farms from Room database
     val farms: Flow<List<Farm>> =
         database.farmDao().getAllFarms()
+
+    val crops: Flow<List<Crop>> =
+        database.cropDao().getAllCrops()
+
+    val agriculturalTasks: Flow<List<AgriculturalTask>> =
+        database.agriculturalTaskDao().getAllTasks()
 
     fun addAssignment(
         labourId: Int,
@@ -58,7 +67,6 @@ class LabourAssignmentViewModel(
         }
 
         viewModelScope.launch {
-
             repository.insertAssignment(
                 LabourAssignment(
                     labourId = labourId,
@@ -72,8 +80,9 @@ class LabourAssignmentViewModel(
         }
     }
 
-    fun deleteAssignment(assignment: LabourAssignment) {
-
+    fun deleteAssignment(
+        assignment: LabourAssignment
+    ) {
         viewModelScope.launch {
             repository.deleteAssignment(assignment)
         }

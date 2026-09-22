@@ -46,6 +46,14 @@ fun LabourAssignmentScreen(
         initial = emptyList()
     )
 
+    val crops by viewModel.crops.collectAsState(
+        initial = emptyList()
+    )
+
+    val agriculturalTasks by viewModel.agriculturalTasks.collectAsState(
+        initial = emptyList()
+    )
+
     var selectedLabourId by remember {
         mutableStateOf(0)
     }
@@ -66,12 +74,20 @@ fun LabourAssignmentScreen(
         mutableStateOf(false)
     }
 
-    var cropName by remember {
+    var selectedCropName by remember {
         mutableStateOf("")
     }
 
-    var taskName by remember {
+    var cropDropdownExpanded by remember {
+        mutableStateOf(false)
+    }
+
+    var selectedTaskName by remember {
         mutableStateOf("")
+    }
+
+    var taskDropdownExpanded by remember {
+        mutableStateOf(false)
     }
 
     var assignmentDate by remember {
@@ -88,7 +104,10 @@ fun LabourAssignmentScreen(
             text = "Labour Assignment"
         )
 
+        // -------------------------
         // Labour Selection
+        // -------------------------
+
         ExposedDropdownMenuBox(
             expanded = labourDropdownExpanded,
             onExpandedChange = {
@@ -160,7 +179,10 @@ fun LabourAssignmentScreen(
             }
         }
 
+        // -------------------------
         // Farm Selection
+        // -------------------------
+
         ExposedDropdownMenuBox(
             expanded = farmDropdownExpanded,
             onExpandedChange = {
@@ -229,31 +251,157 @@ fun LabourAssignmentScreen(
             }
         }
 
-        OutlinedTextField(
-            value = cropName,
-            onValueChange = {
-                cropName = it
-            },
-            label = {
-                Text("Crop Name")
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
-        )
+        // -------------------------
+        // Crop Selection
+        // -------------------------
 
-        OutlinedTextField(
-            value = taskName,
-            onValueChange = {
-                taskName = it
-            },
-            label = {
-                Text("Agricultural Task")
+        ExposedDropdownMenuBox(
+            expanded = cropDropdownExpanded,
+            onExpandedChange = {
+                cropDropdownExpanded = !cropDropdownExpanded
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
-        )
+        ) {
+
+            OutlinedTextField(
+                value = selectedCropName,
+                onValueChange = {},
+                readOnly = true,
+                label = {
+                    Text("Select Crop")
+                },
+                placeholder = {
+                    Text("Choose registered crop")
+                },
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(
+                        expanded = cropDropdownExpanded
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor()
+            )
+
+            ExposedDropdownMenu(
+                expanded = cropDropdownExpanded,
+                onDismissRequest = {
+                    cropDropdownExpanded = false
+                }
+            ) {
+
+                if (crops.isEmpty()) {
+
+                    DropdownMenuItem(
+                        text = {
+                            Text("No crops registered")
+                        },
+                        onClick = {
+                            cropDropdownExpanded = false
+                        }
+                    )
+
+                } else {
+
+                    crops.forEach { crop ->
+
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    "${crop.cropName} - ${crop.farmName}"
+                                )
+                            },
+                            onClick = {
+
+                                selectedCropName = crop.cropName
+
+                                cropDropdownExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        // -------------------------
+        // Agricultural Task Selection
+        // -------------------------
+
+        ExposedDropdownMenuBox(
+            expanded = taskDropdownExpanded,
+            onExpandedChange = {
+                taskDropdownExpanded = !taskDropdownExpanded
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+        ) {
+
+            OutlinedTextField(
+                value = selectedTaskName,
+                onValueChange = {},
+                readOnly = true,
+                label = {
+                    Text("Select Agricultural Task")
+                },
+                placeholder = {
+                    Text("Choose registered task")
+                },
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(
+                        expanded = taskDropdownExpanded
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor()
+            )
+
+            ExposedDropdownMenu(
+                expanded = taskDropdownExpanded,
+                onDismissRequest = {
+                    taskDropdownExpanded = false
+                }
+            ) {
+
+                if (agriculturalTasks.isEmpty()) {
+
+                    DropdownMenuItem(
+                        text = {
+                            Text("No agricultural tasks registered")
+                        },
+                        onClick = {
+                            taskDropdownExpanded = false
+                        }
+                    )
+
+                } else {
+
+                    agriculturalTasks.forEach { task ->
+
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    "${task.taskName} - ${task.cropName}"
+                                )
+                            },
+                            onClick = {
+
+                                selectedTaskName = task.taskName
+
+                                taskDropdownExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        // -------------------------
+        // Assignment Date
+        // -------------------------
 
         OutlinedTextField(
             value = assignmentDate,
@@ -263,10 +411,17 @@ fun LabourAssignmentScreen(
             label = {
                 Text("Assignment Date")
             },
+            placeholder = {
+                Text("DD/MM/YYYY")
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
         )
+
+        // -------------------------
+        // Assign Labour
+        // -------------------------
 
         Button(
             onClick = {
@@ -275,16 +430,16 @@ fun LabourAssignmentScreen(
                     labourId = selectedLabourId,
                     labourName = selectedLabourName,
                     farmName = selectedFarmName,
-                    cropName = cropName,
-                    taskName = taskName,
+                    cropName = selectedCropName,
+                    taskName = selectedTaskName,
                     assignmentDate = assignmentDate
                 )
 
                 selectedLabourId = 0
                 selectedLabourName = ""
                 selectedFarmName = ""
-                cropName = ""
-                taskName = ""
+                selectedCropName = ""
+                selectedTaskName = ""
                 assignmentDate = ""
 
             },
@@ -294,6 +449,10 @@ fun LabourAssignmentScreen(
         ) {
             Text("Assign Labour")
         }
+
+        // -------------------------
+        // Current Assignments
+        // -------------------------
 
         Text(
             text = "Current Assignments",
@@ -309,7 +468,9 @@ fun LabourAssignmentScreen(
 
             items(
                 items = assignments,
-                key = { it.id }
+                key = {
+                    it.id
+                }
             ) { assignment ->
 
                 AssignmentCard(
@@ -320,6 +481,10 @@ fun LabourAssignmentScreen(
                 )
             }
         }
+
+        // -------------------------
+        // Back
+        // -------------------------
 
         Button(
             onClick = onBack,

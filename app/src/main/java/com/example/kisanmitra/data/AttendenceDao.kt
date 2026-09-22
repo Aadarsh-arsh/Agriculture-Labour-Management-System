@@ -17,4 +17,16 @@ interface AttendanceDao {
 
     @Query("SELECT * FROM attendance ORDER BY date DESC")
     fun getAllAttendance(): Flow<List<Attendance>>
+
+    @Query("""
+        SELECT COUNT(*) FROM attendance
+        WHERE labourId = :labourId
+        AND date = :date
+        AND taskName = :taskName
+    """)
+    suspend fun getAttendanceCount(
+        labourId: Int,
+        date: String,
+        taskName: String
+    ): Int
 }

@@ -16,4 +16,16 @@ class AttendanceRepository(
     suspend fun deleteAttendance(attendance: Attendance) {
         attendanceDao.deleteAttendance(attendance)
     }
+
+    suspend fun getAttendanceCount(
+        labourId: Int,
+        date: String,
+        taskName: String
+    ): Int {
+        return attendanceDao.getAttendanceCount(
+            labourId = labourId,
+            date = date,
+            taskName = taskName
+        )
+    }
 }
