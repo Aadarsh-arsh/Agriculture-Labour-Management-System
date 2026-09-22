@@ -10,11 +10,11 @@ import kotlinx.coroutines.launch
 
 class LabourViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val database = KisanMitraDatabase.getDatabase(application)
+    private val database =
+        KisanMitraDatabase.getDatabase(application)
 
-    private val repository = LabourRepository(
-        database.labourDao()
-    )
+    private val repository =
+        LabourRepository(database.labourDao())
 
     val labourers = repository.allLabourers
 
@@ -24,29 +24,41 @@ class LabourViewModel(application: Application) : AndroidViewModel(application) 
         wage: String,
         skill: String
     ) {
-        val dailyWage = wage.toDoubleOrNull() ?: return
 
+        val cleanName = name.trim()
+        val cleanPhone = phone.trim()
+        val cleanSkill = skill.trim()
+        val dailyWage = wage.trim().toDoubleOrNull()
+
+        // Validate required fields
         if (
-            name.isBlank() ||
-            phone.isBlank() ||
-            skill.isBlank()
+            cleanName.isBlank() ||
+            cleanPhone.isBlank() ||
+            cleanSkill.isBlank()
         ) {
             return
         }
 
+        // Validate wage
+        if (dailyWage == null || dailyWage <= 0) {
+            return
+        }
+
         viewModelScope.launch {
+
             repository.insertLabour(
                 Labour(
-                    name = name,
-                    phone = phone,
+                    name = cleanName,
+                    phone = cleanPhone,
                     dailyWage = dailyWage,
-                    skill = skill
+                    skill = cleanSkill
                 )
             )
         }
     }
 
     fun deleteLabour(labour: Labour) {
+
         viewModelScope.launch {
             repository.deleteLabour(labour)
         }
