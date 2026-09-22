@@ -16,9 +16,7 @@ class AgriculturalTaskViewModel(
         KisanMitraDatabase.getDatabase(application)
 
     private val repository =
-        AgriculturalTaskRepository(
-            database.agriculturalTaskDao()
-        )
+        AgriculturalTaskRepository(database.agriculturalTaskDao())
 
     val tasks = repository.allTasks
 

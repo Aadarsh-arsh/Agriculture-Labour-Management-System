@@ -71,6 +71,7 @@ fun AgriculturalTaskScreen(
             value = taskDate,
             onValueChange = { taskDate = it },
             label = { Text("Task Date") },
+            placeholder = { Text("DD/MM/YYYY") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
@@ -80,6 +81,7 @@ fun AgriculturalTaskScreen(
             value = status,
             onValueChange = { status = it },
             label = { Text("Status") },
+            placeholder = { Text("Pending / In Progress / Completed") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
@@ -104,11 +106,11 @@ fun AgriculturalTaskScreen(
                 .fillMaxWidth()
                 .padding(top = 12.dp)
         ) {
-            Text("Add Task")
+            Text("Add Agricultural Task")
         }
 
         Text(
-            text = "My Agricultural Tasks",
+            text = "Agricultural Tasks",
             modifier = Modifier.padding(top = 20.dp)
         )
 
@@ -124,19 +126,29 @@ fun AgriculturalTaskScreen(
                 key = { it.id }
             ) { task ->
 
-                TaskCard(
+                AgriculturalTaskCard(
                     task = task,
                     onDelete = {
                         viewModel.deleteTask(task)
-                    },
-                    onAssignLabour = onAssignLabour
+                    }
                 )
             }
         }
 
         Button(
+            onClick = onAssignLabour,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+        ) {
+            Text("Assign Labour")
+        }
+
+        Button(
             onClick = onBack,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
         ) {
             Text("Back")
         }
@@ -144,10 +156,9 @@ fun AgriculturalTaskScreen(
 }
 
 @Composable
-private fun TaskCard(
+private fun AgriculturalTaskCard(
     task: AgriculturalTask,
-    onDelete: () -> Unit,
-    onAssignLabour: () -> Unit
+    onDelete: () -> Unit
 ) {
 
     Card(
@@ -163,15 +174,18 @@ private fun TaskCard(
             )
 
             Text(
-                text = "Crop: ${task.cropName}"
+                text = "Crop: ${task.cropName}",
+                modifier = Modifier.padding(top = 4.dp)
             )
 
             Text(
-                text = "Date: ${task.taskDate}"
+                text = "Date: ${task.taskDate}",
+                modifier = Modifier.padding(top = 4.dp)
             )
 
             Text(
-                text = "Status: ${task.status}"
+                text = "Status: ${task.status}",
+                modifier = Modifier.padding(top = 4.dp)
             )
 
             Row(
@@ -182,14 +196,7 @@ private fun TaskCard(
             ) {
 
                 Button(
-                    onClick = onAssignLabour
-                ) {
-                    Text("Assign Labour")
-                }
-
-                Button(
-                    onClick = onDelete,
-                    modifier = Modifier.padding(start = 8.dp)
+                    onClick = onDelete
                 ) {
                     Text("Delete")
                 }
