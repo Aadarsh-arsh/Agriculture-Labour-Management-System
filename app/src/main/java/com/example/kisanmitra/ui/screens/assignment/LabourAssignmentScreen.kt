@@ -42,14 +42,41 @@ fun LabourAssignmentScreen(
         initial = emptyList()
     )
 
-    var selectedLabourId by remember { mutableStateOf(0) }
-    var selectedLabourName by remember { mutableStateOf("") }
-    var labourDropdownExpanded by remember { mutableStateOf(false) }
+    val farms by viewModel.farms.collectAsState(
+        initial = emptyList()
+    )
 
-    var farmName by remember { mutableStateOf("") }
-    var cropName by remember { mutableStateOf("") }
-    var taskName by remember { mutableStateOf("") }
-    var assignmentDate by remember { mutableStateOf("") }
+    var selectedLabourId by remember {
+        mutableStateOf(0)
+    }
+
+    var selectedLabourName by remember {
+        mutableStateOf("")
+    }
+
+    var labourDropdownExpanded by remember {
+        mutableStateOf(false)
+    }
+
+    var selectedFarmName by remember {
+        mutableStateOf("")
+    }
+
+    var farmDropdownExpanded by remember {
+        mutableStateOf(false)
+    }
+
+    var cropName by remember {
+        mutableStateOf("")
+    }
+
+    var taskName by remember {
+        mutableStateOf("")
+    }
+
+    var assignmentDate by remember {
+        mutableStateOf("")
+    }
 
     Column(
         modifier = Modifier
@@ -133,20 +160,80 @@ fun LabourAssignmentScreen(
             }
         }
 
-        OutlinedTextField(
-            value = farmName,
-            onValueChange = { farmName = it },
-            label = {
-                Text("Farm Name")
+        // Farm Selection
+        ExposedDropdownMenuBox(
+            expanded = farmDropdownExpanded,
+            onExpandedChange = {
+                farmDropdownExpanded = !farmDropdownExpanded
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
-        )
+        ) {
+
+            OutlinedTextField(
+                value = selectedFarmName,
+                onValueChange = {},
+                readOnly = true,
+                label = {
+                    Text("Select Farm")
+                },
+                placeholder = {
+                    Text("Choose registered farm")
+                },
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(
+                        expanded = farmDropdownExpanded
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor()
+            )
+
+            ExposedDropdownMenu(
+                expanded = farmDropdownExpanded,
+                onDismissRequest = {
+                    farmDropdownExpanded = false
+                }
+            ) {
+
+                if (farms.isEmpty()) {
+
+                    DropdownMenuItem(
+                        text = {
+                            Text("No farms registered")
+                        },
+                        onClick = {
+                            farmDropdownExpanded = false
+                        }
+                    )
+
+                } else {
+
+                    farms.forEach { farm ->
+
+                        DropdownMenuItem(
+                            text = {
+                                Text(farm.farmName)
+                            },
+                            onClick = {
+
+                                selectedFarmName = farm.farmName
+
+                                farmDropdownExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
 
         OutlinedTextField(
             value = cropName,
-            onValueChange = { cropName = it },
+            onValueChange = {
+                cropName = it
+            },
             label = {
                 Text("Crop Name")
             },
@@ -157,7 +244,9 @@ fun LabourAssignmentScreen(
 
         OutlinedTextField(
             value = taskName,
-            onValueChange = { taskName = it },
+            onValueChange = {
+                taskName = it
+            },
             label = {
                 Text("Agricultural Task")
             },
@@ -168,7 +257,9 @@ fun LabourAssignmentScreen(
 
         OutlinedTextField(
             value = assignmentDate,
-            onValueChange = { assignmentDate = it },
+            onValueChange = {
+                assignmentDate = it
+            },
             label = {
                 Text("Assignment Date")
             },
@@ -183,7 +274,7 @@ fun LabourAssignmentScreen(
                 viewModel.addAssignment(
                     labourId = selectedLabourId,
                     labourName = selectedLabourName,
-                    farmName = farmName,
+                    farmName = selectedFarmName,
                     cropName = cropName,
                     taskName = taskName,
                     assignmentDate = assignmentDate
@@ -191,7 +282,7 @@ fun LabourAssignmentScreen(
 
                 selectedLabourId = 0
                 selectedLabourName = ""
-                farmName = ""
+                selectedFarmName = ""
                 cropName = ""
                 taskName = ""
                 assignmentDate = ""

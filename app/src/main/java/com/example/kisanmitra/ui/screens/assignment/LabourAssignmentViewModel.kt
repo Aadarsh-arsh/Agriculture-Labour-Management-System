@@ -3,6 +3,7 @@ package com.example.kisanmitra.ui.screens.assignment
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.kisanmitra.data.Farm
 import com.example.kisanmitra.data.KisanMitraDatabase
 import com.example.kisanmitra.data.Labour
 import com.example.kisanmitra.data.LabourAssignment
@@ -25,6 +26,10 @@ class LabourAssignmentViewModel(
     // Registered labourers from Room database
     val labourers: Flow<List<Labour>> =
         database.labourDao().getAllLabourers()
+
+    // Registered farms from Room database
+    val farms: Flow<List<Farm>> =
+        database.farmDao().getAllFarms()
 
     fun addAssignment(
         labourId: Int,
