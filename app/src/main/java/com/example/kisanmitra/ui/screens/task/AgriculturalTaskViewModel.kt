@@ -27,11 +27,16 @@ class AgriculturalTaskViewModel(
         status: String
     ) {
 
+        val cleanTaskName = taskName.trim()
+        val cleanCropName = cropName.trim()
+        val cleanTaskDate = taskDate.trim()
+        val cleanStatus = status.trim()
+
         if (
-            taskName.isBlank() ||
-            cropName.isBlank() ||
-            taskDate.isBlank() ||
-            status.isBlank()
+            cleanTaskName.isBlank() ||
+            cleanCropName.isBlank() ||
+            cleanTaskDate.isBlank() ||
+            cleanStatus.isBlank()
         ) {
             return
         }
@@ -40,10 +45,10 @@ class AgriculturalTaskViewModel(
 
             repository.insertTask(
                 AgriculturalTask(
-                    taskName = taskName,
-                    cropName = cropName,
-                    taskDate = taskDate,
-                    status = status
+                    taskName = cleanTaskName,
+                    cropName = cleanCropName,
+                    taskDate = cleanTaskDate,
+                    status = cleanStatus
                 )
             )
         }
