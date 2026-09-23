@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import com.example.kisanmitra.data.SupabaseClientProvider
 import com.example.kisanmitra.ui.screens.assignment.LabourAssignmentScreen
 import com.example.kisanmitra.ui.screens.attendance.AttendanceScreen
+import com.example.kisanmitra.ui.screens.auth.ForgotPasswordScreen
 import com.example.kisanmitra.ui.screens.auth.LoginScreen
 import com.example.kisanmitra.ui.screens.auth.SignUpScreen
 import com.example.kisanmitra.ui.screens.crop.CropScreen
@@ -25,6 +26,7 @@ sealed class Screen(val route: String) {
 
     data object Login : Screen("login")
     data object SignUp : Screen("signup")
+    data object ForgotPassword : Screen("forgot_password")
 
     data object Dashboard : Screen("dashboard")
     data object Labour : Screen("labour")
@@ -68,7 +70,7 @@ fun NavGraph(navController: NavHostController) {
                 },
 
                 onForgotPassword = {
-                    // Forgot password will be added later
+                    navController.navigate(Screen.ForgotPassword.route)
                 }
             )
         }
@@ -88,6 +90,19 @@ fun NavGraph(navController: NavHostController) {
                     }
                 },
 
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        // -------------------------
+        // FORGOT PASSWORD
+        // -------------------------
+
+        composable(Screen.ForgotPassword.route) {
+
+            ForgotPasswordScreen(
                 onBack = {
                     navController.popBackStack()
                 }
