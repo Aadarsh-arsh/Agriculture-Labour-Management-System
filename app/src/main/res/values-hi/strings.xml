@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">किसानमित्र2</string>
+
+    <!-- Authentication -->
+    <string name="login">लॉगिन</string>
+    <string name="farmer_login">किसान लॉगिन</string>
+    <string name="email">ईमेल</string>
+    <string name="password">पासवर्ड</string>
+    <string name="new_password">नया पासवर्ड</string>
+    <string name="confirm_password">पासवर्ड की पुष्टि करें</string>
+    <string name="create_account">खाता बनाएँ</string>
+    <string name="forgot_password">पासवर्ड भूल गए?</string>
+    <string name="reset_password">पासवर्ड रीसेट करें</string>
+    <string name="update_password">पासवर्ड अपडेट करें</string>
+    <string name="send_reset_email">रीसेट ईमेल भेजें</string>
+    <string name="back_to_login">लॉगिन पर वापस जाएँ</string>
+    <string name="kisanmitra">किसानमित्र</string>
+
+    <!-- Authentication messages -->
+    <string name="please_enter_email_password">कृपया ईमेल और पासवर्ड दर्ज करें</string>
+    <string name="please_enter_email">कृपया अपना ईमेल दर्ज करें</string>
+    <string name="please_fill_all_fields">कृपया सभी फ़ील्ड भरें</string>
+    <string name="please_fill_both_password_fields">कृपया दोनों पासवर्ड फ़ील्ड भरें</string>
+    <string name="password_minimum">पासवर्ड कम से कम 6 अक्षरों का होना चाहिए</string>
+    <string name="passwords_not_match">पासवर्ड मेल नहीं खाते</string>
+    <string name="login_failed">लॉगिन विफल हुआ</string>
+    <string name="account_creation_failed">खाता बनाने में विफल</string>
+    <string name="failed_to_send_reset_email">रीसेट ईमेल भेजने में विफल</string>
+    <string name="failed_to_update_password">पासवर्ड अपडेट करने में विफल</string>
+    <string name="account_created_successfully">खाता सफलतापूर्वक बनाया गया!</string>
+    <string name="reset_email_sent">पासवर्ड रीसेट ईमेल भेज दिया गया। अपना ईमेल जाँचें।</string>
+    <string name="password_updated_successfully">पासवर्ड सफलतापूर्वक अपडेट किया गया!</string>
+
+    <!-- Loading -->
+    <string name="logging_in">लॉगिन हो रहा है...</string>
+    <string name="creating_account">खाता बनाया जा रहा है...</string>
+    <string name="sending">भेजा जा रहा है...</string>
+    <string name="updating">अपडेट किया जा रहा है...</string>
+
+    <!-- Password reset -->
+    <string name="enter_registered_email">अपना पंजीकृत ईमेल पता दर्ज करें।</string>
+    <string name="enter_new_password">अपना नया पासवर्ड दर्ज करें।</string>
+
+</resources>

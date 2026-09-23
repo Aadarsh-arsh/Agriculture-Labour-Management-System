@@ -5,9 +5,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -19,16 +21,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.kisanmitra.R
 import com.example.kisanmitra.navigation.Screen
 import com.example.kisanmitra.ui.components.DashboardCard
+import com.example.kisanmitra.ui.components.LanguageSelector
 
 @Composable
 fun DashboardScreen(
     onNavigate: (String) -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onLanguageChange: (Boolean) -> Unit,
+    isHindi: Boolean
 ) {
 
     val darkGreen = Color(0xFF1B5E20)
@@ -47,7 +54,10 @@ fun DashboardScreen(
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
 
-        // Header
+        // =========================
+        // HEADER
+        // =========================
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -56,6 +66,7 @@ fun DashboardScreen(
             Column(
                 modifier = Modifier.weight(1f)
             ) {
+
                 Text(
                     text = "KisanMitra2",
                     fontSize = 29.sp,
@@ -64,28 +75,45 @@ fun DashboardScreen(
                 )
 
                 Text(
-                    text = "Smart Farmer Management",
+                    text = stringResource(R.string.dashboard_subtitle),
                     fontSize = 14.sp,
                     color = textGrey,
                     modifier = Modifier.padding(top = 3.dp)
                 )
             }
 
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = lightGreen
-                )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "🌿",
-                    fontSize = 27.sp,
-                    modifier = Modifier.padding(10.dp)
+
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = lightGreen
+                    )
+                ) {
+                    Text(
+                        text = "🌿",
+                        fontSize = 27.sp,
+                        modifier = Modifier.padding(10.dp)
+                    )
+                }
+
+                Spacer(
+                    modifier = Modifier.width(6.dp)
+                )
+
+                LanguageSelector(
+                    isHindi = isHindi,
+                    onLanguageChange = onLanguageChange
                 )
             }
         }
 
-        // Welcome card
+        // =========================
+        // WELCOME CARD
+        // =========================
+
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(26.dp),
@@ -102,14 +130,14 @@ fun DashboardScreen(
             ) {
 
                 Text(
-                    text = "Welcome, Farmer 👋",
+                    text = stringResource(R.string.welcome_farmer),
                     fontSize = 23.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
 
                 Text(
-                    text = "Manage your farm, crops, labour and daily agricultural activities from one place.",
+                    text = stringResource(R.string.dashboard_description),
                     fontSize = 14.sp,
                     lineHeight = 21.sp,
                     color = Color(0xFFE8F5E9),
@@ -122,11 +150,14 @@ fun DashboardScreen(
                         .padding(top = 16.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFF2E7D32)
+                        containerColor = mediumGreen
                     )
                 ) {
+
                     Text(
-                        text = "🌱  Your farm. Your data. Your control.",
+                        text = stringResource(
+                            R.string.your_farm_data_control
+                        ),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.White,
@@ -136,9 +167,15 @@ fun DashboardScreen(
             }
         }
 
+        // =========================
+        // QUICK OVERVIEW
+        // =========================
+
         SectionTitle(
-            title = "Quick Overview",
-            subtitle = "Your farm management at a glance"
+            title = stringResource(R.string.quick_overview),
+            subtitle = stringResource(
+                R.string.farm_management_at_glance
+            )
         )
 
         Row(
@@ -148,7 +185,7 @@ fun DashboardScreen(
 
             OverviewCard(
                 icon = "👷",
-                title = "Labour",
+                title = stringResource(R.string.labour),
                 modifier = Modifier.weight(1f),
                 backgroundColor = Color(0xFFFFF8E1),
                 iconBackground = Color(0xFFFFECB3)
@@ -156,7 +193,7 @@ fun DashboardScreen(
 
             OverviewCard(
                 icon = "🚜",
-                title = "Farms",
+                title = stringResource(R.string.farms),
                 modifier = Modifier.weight(1f),
                 backgroundColor = Color(0xFFE3F2FD),
                 iconBackground = Color(0xFFBBDEFB)
@@ -164,22 +201,28 @@ fun DashboardScreen(
 
             OverviewCard(
                 icon = "🌱",
-                title = "Crops",
+                title = stringResource(R.string.crops),
                 modifier = Modifier.weight(1f),
                 backgroundColor = Color(0xFFE8F5E9),
                 iconBackground = Color(0xFFC8E6C9)
             )
         }
 
+        // =========================
+        // FARM & LABOUR
+        // =========================
+
         SectionTitle(
-            title = "Farm & Labour",
-            subtitle = "Manage your workforce and daily operations"
+            title = stringResource(R.string.farm_labour),
+            subtitle = stringResource(R.string.manage_workforce)
         )
 
         DashboardCard(
             icon = "👷",
-            title = "Labour Management",
-            description = "Add and manage agricultural labourers",
+            title = stringResource(R.string.labour_management),
+            description = stringResource(
+                R.string.labour_management_desc
+            ),
             onClick = {
                 onNavigate(Screen.Labour.route)
             }
@@ -187,8 +230,10 @@ fun DashboardScreen(
 
         DashboardCard(
             icon = "🚜",
-            title = "Farm Management",
-            description = "Manage farms and agricultural land",
+            title = stringResource(R.string.farm_management),
+            description = stringResource(
+                R.string.farm_management_desc
+            ),
             onClick = {
                 onNavigate(Screen.Farm.route)
             }
@@ -196,8 +241,10 @@ fun DashboardScreen(
 
         DashboardCard(
             icon = "📋",
-            title = "Agricultural Tasks",
-            description = "Create and manage farming tasks",
+            title = stringResource(R.string.agricultural_tasks),
+            description = stringResource(
+                R.string.agricultural_tasks_desc
+            ),
             onClick = {
                 onNavigate(Screen.AgriculturalTask.route)
             }
@@ -205,8 +252,10 @@ fun DashboardScreen(
 
         DashboardCard(
             icon = "👥",
-            title = "Labour Assignment",
-            description = "Assign labourers to farms, crops and tasks",
+            title = stringResource(R.string.labour_assignment),
+            description = stringResource(
+                R.string.labour_assignment_desc
+            ),
             onClick = {
                 onNavigate(Screen.LabourAssignment.route)
             }
@@ -214,8 +263,10 @@ fun DashboardScreen(
 
         DashboardCard(
             icon = "🔊",
-            title = "Voice Attendance",
-            description = "Record labour attendance using voice assistance",
+            title = stringResource(R.string.voice_attendance),
+            description = stringResource(
+                R.string.voice_attendance_desc
+            ),
             onClick = {
                 onNavigate(Screen.Attendance.route)
             }
@@ -223,22 +274,36 @@ fun DashboardScreen(
 
         DashboardCard(
             icon = "💰",
-            title = "Wage Calculation",
-            description = "Calculate labour wages from attendance",
+            title = stringResource(R.string.wage_calculation),
+            description = stringResource(
+                R.string.wage_calculation_desc
+            ),
             onClick = {
                 onNavigate(Screen.Wage.route)
             }
         )
 
+        // =========================
+        // CROP MANAGEMENT
+        // =========================
+
         SectionTitle(
-            title = "Crop Management",
-            subtitle = "Plan, monitor and manage your crops"
+            title = stringResource(
+                R.string.crop_management_section
+            ),
+            subtitle = stringResource(
+                R.string.plan_monitor_manage_crops
+            )
         )
 
         DashboardCard(
             icon = "🌱",
-            title = "Crop Management",
-            description = "Add and manage crops on your farms",
+            title = stringResource(
+                R.string.crop_management
+            ),
+            description = stringResource(
+                R.string.crop_management_desc
+            ),
             onClick = {
                 onNavigate(Screen.Crop.route)
             }
@@ -246,8 +311,12 @@ fun DashboardScreen(
 
         DashboardCard(
             icon = "📅",
-            title = "Crop Stages / Farming Plan",
-            description = "Track crop growth stages and farming schedules",
+            title = stringResource(
+                R.string.crop_stages_farming_plan
+            ),
+            description = stringResource(
+                R.string.crop_stages_desc
+            ),
             onClick = {
                 onNavigate(Screen.CropStage.route)
             }
@@ -255,14 +324,21 @@ fun DashboardScreen(
 
         DashboardCard(
             icon = "🌿",
-            title = "Organic Farming",
-            description = "Organic practices, natural fertilizers and pest management",
+            title = stringResource(
+                R.string.organic_farming
+            ),
+            description = stringResource(
+                R.string.organic_farming_desc
+            ),
             onClick = {
                 onNavigate(Screen.OrganicFarming.route)
             }
         )
 
-        // About card
+        // =========================
+        // ABOUT
+        // =========================
+
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -281,14 +357,18 @@ fun DashboardScreen(
             ) {
 
                 Text(
-                    text = "About KisanMitra2",
+                    text = stringResource(
+                        R.string.about_kisanmitra
+                    ),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = darkGreen
                 )
 
                 Text(
-                    text = "A farmer-focused agricultural labour and crop management system designed to simplify everyday farm operations.",
+                    text = stringResource(
+                        R.string.about_kisanmitra_desc
+                    ),
                     fontSize = 13.sp,
                     lineHeight = 20.sp,
                     color = textDark,
@@ -296,7 +376,9 @@ fun DashboardScreen(
                 )
 
                 Text(
-                    text = "🌾 Manage • 📋 Plan • 👷 Assign • 🗣️ Track • 💰 Calculate",
+                    text = stringResource(
+                        R.string.about_features
+                    ),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     color = mediumGreen,
@@ -305,15 +387,22 @@ fun DashboardScreen(
             }
         }
 
-        // Logout button
+        // =========================
+        // LOGOUT
+        // =========================
+
         Button(
             onClick = onLogout,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 4.dp, bottom = 10.dp)
+                .padding(
+                    top = 4.dp,
+                    bottom = 10.dp
+                )
         ) {
+
             Text(
-                text = "Logout",
+                text = stringResource(R.string.logout),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -373,7 +462,10 @@ private fun OverviewCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 14.dp, horizontal = 8.dp),
+                .padding(
+                    vertical = 14.dp,
+                    horizontal = 8.dp
+                ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -386,6 +478,7 @@ private fun OverviewCard(
                     .padding(8.dp),
                 contentAlignment = Alignment.Center
             ) {
+
                 Text(
                     text = icon,
                     fontSize = 23.sp

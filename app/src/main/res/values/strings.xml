@@ -1,4 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- App -->
     <string name="app_name">KisanMitra2</string>
+
+    <!-- Authentication -->
+    <string name="login">Login</string>
+    <string name="farmer_login">Farmer Login</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="new_password">New Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="create_account">Create Account</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="update_password">Update Password</string>
+    <string name="send_reset_email">Send Reset Email</string>
+    <string name="back_to_login">Back to Login</string>
+    <string name="kisanmitra">KisanMitra</string>
+
+    <!-- Authentication messages -->
+    <string name="please_enter_email_password">Please enter email and password</string>
+    <string name="please_enter_email">Please enter your email</string>
+    <string name="please_fill_all_fields">Please fill all fields</string>
+    <string name="please_fill_both_password_fields">Please fill both password fields</string>
+    <string name="password_minimum">Password must be at least 6 characters</string>
+    <string name="passwords_not_match">Passwords do not match</string>
+    <string name="login_failed">Login failed</string>
+    <string name="account_creation_failed">Account creation failed</string>
+    <string name="failed_to_send_reset_email">Failed to send reset email</string>
+    <string name="failed_to_update_password">Failed to update password</string>
+    <string name="account_created_successfully">Account created successfully!</string>
+    <string name="reset_email_sent">Password reset email sent. Check your email.</string>
+    <string name="password_updated_successfully">Password updated successfully!</string>
+
+    <!-- Loading -->
+    <string name="logging_in">Logging in...</string>
+    <string name="creating_account">Creating Account...</string>
+    <string name="sending">Sending...</string>
+    <string name="updating">Updating...</string>
+
+    <!-- Password reset -->
+    <string name="enter_registered_email">Enter your registered email address.</string>
+    <string name="enter_new_password">Enter your new password.</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_subtitle">Smart Farmer Management</string>
+    <string name="welcome_farmer">Welcome, Farmer 👋</string>
+    <string name="dashboard_description">Manage your farm, crops, labour and daily agricultural activities from one place.</string>
+    <string name="your_farm_data_control">🌱 Your farm. Your data. Your control.</string>
+
+    <string name="quick_overview">Quick Overview</string>
+    <string name="farm_management_at_glance">Your farm management at a glance</string>
+
+    <string name="labour">Labour</string>
+    <string name="farms">Farms</string>
+    <string name="crops">Crops</string>
+
+    <string name="farm_labour">Farm &amp; Labour</string>
+    <string name="manage_workforce">Manage your workforce and daily operations</string>
+
+    <string name="labour_management">Labour Management</string>
+    <string name="labour_management_desc">Add and manage agricultural labourers</string>
+
+    <string name="farm_management">Farm Management</string>
+    <string name="farm_management_desc">Manage farms and agricultural land</string>
+
+    <string name="agricultural_tasks">Agricultural Tasks</string>
+    <string name="agricultural_tasks_desc">Create and manage farming tasks</string>
+
+    <string name="labour_assignment">Labour Assignment</string>
+    <string name="labour_assignment_desc">Assign labourers to farms, crops and tasks</string>
+
+    <string name="voice_attendance">Voice Attendance</string>
+    <string name="voice_attendance_desc">Record labour attendance using voice assistance</string>
+
+    <string name="wage_calculation">Wage Calculation</string>
+    <string name="wage_calculation_desc">Calculate labour wages from attendance</string>
+
+    <string name="crop_management_section">Crop Management</string>
+    <string name="plan_monitor_manage_crops">Plan, monitor and manage your crops</string>
+
+    <string name="crop_management">Crop Management</string>
+    <string name="crop_management_desc">Add and manage crops on your farms</string>
+
+    <string name="crop_stages_farming_plan">Crop Stages / Farming Plan</string>
+    <string name="crop_stages_desc">Track crop growth stages and farming schedules</string>
+
+    <string name="organic_farming">Organic Farming</string>
+    <string name="organic_farming_desc">Organic practices, natural fertilizers and pest management</string>
+
+    <string name="about_kisanmitra">About KisanMitra2</string>
+    <string name="about_kisanmitra_desc">A farmer-focused agricultural labour and crop management system designed to simplify everyday farm operations.</string>
+    <string name="about_features">🌾 Manage • 📋 Plan • 👷 Assign • 🗣️ Track • 💰 Calculate</string>
+
+    <string name="logout">Logout</string>
+
 </resources>
