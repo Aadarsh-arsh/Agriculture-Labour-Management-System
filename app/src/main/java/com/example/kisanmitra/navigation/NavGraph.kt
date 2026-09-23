@@ -10,6 +10,7 @@ import com.example.kisanmitra.ui.screens.assignment.LabourAssignmentScreen
 import com.example.kisanmitra.ui.screens.attendance.AttendanceScreen
 import com.example.kisanmitra.ui.screens.auth.ForgotPasswordScreen
 import com.example.kisanmitra.ui.screens.auth.LoginScreen
+import com.example.kisanmitra.ui.screens.auth.ResetPasswordScreen
 import com.example.kisanmitra.ui.screens.auth.SignUpScreen
 import com.example.kisanmitra.ui.screens.crop.CropScreen
 import com.example.kisanmitra.ui.screens.crop.CropStageScreen
@@ -27,6 +28,7 @@ sealed class Screen(val route: String) {
     data object Login : Screen("login")
     data object SignUp : Screen("signup")
     data object ForgotPassword : Screen("forgot_password")
+    data object ResetPassword : Screen("reset_password")
 
     data object Dashboard : Screen("dashboard")
     data object Labour : Screen("labour")
@@ -110,6 +112,25 @@ fun NavGraph(navController: NavHostController) {
         }
 
         // -------------------------
+        // RESET PASSWORD
+        // -------------------------
+
+        composable(Screen.ResetPassword.route) {
+
+            ResetPasswordScreen(
+                onPasswordUpdated = {
+
+                    navController.navigate(Screen.Login.route) {
+
+                        popUpTo(Screen.ResetPassword.route) {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
+        }
+
+        // -------------------------
         // DASHBOARD
         // -------------------------
 
@@ -128,12 +149,14 @@ fun NavGraph(navController: NavHostController) {
                             SupabaseClientProvider.client.auth.signOut()
 
                             navController.navigate(Screen.Login.route) {
+
                                 popUpTo(Screen.Dashboard.route) {
                                     inclusive = true
                                 }
                             }
 
                         } catch (e: Exception) {
+
                             e.printStackTrace()
                         }
                     }
@@ -192,11 +215,15 @@ fun NavGraph(navController: NavHostController) {
                 },
 
                 onAgriculturalTask = {
-                    navController.navigate(Screen.AgriculturalTask.route)
+                    navController.navigate(
+                        Screen.AgriculturalTask.route
+                    )
                 },
 
                 onCropStage = {
-                    navController.navigate(Screen.CropStage.route)
+                    navController.navigate(
+                        Screen.CropStage.route
+                    )
                 }
             )
         }
