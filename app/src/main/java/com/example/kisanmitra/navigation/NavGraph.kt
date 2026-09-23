@@ -1,9 +1,11 @@
 package com.example.kisanmitra.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.kisanmitra.data.SupabaseClientProvider
 import com.example.kisanmitra.ui.screens.assignment.LabourAssignmentScreen
 import com.example.kisanmitra.ui.screens.attendance.AttendanceScreen
 import com.example.kisanmitra.ui.screens.auth.LoginScreen
@@ -16,6 +18,8 @@ import com.example.kisanmitra.ui.screens.labour.LabourScreen
 import com.example.kisanmitra.ui.screens.organic.OrganicFarmingScreen
 import com.example.kisanmitra.ui.screens.task.AgriculturalTaskScreen
 import com.example.kisanmitra.ui.screens.wage.WageScreen
+import io.github.jan.supabase.auth.auth
+import kotlinx.coroutines.launch
 
 sealed class Screen(val route: String) {
 
@@ -36,6 +40,8 @@ sealed class Screen(val route: String) {
 
 @Composable
 fun NavGraph(navController: NavHostController) {
+
+    val scope = rememberCoroutineScope()
 
     NavHost(
         navController = navController,
@@ -97,6 +103,25 @@ fun NavGraph(navController: NavHostController) {
             DashboardScreen(
                 onNavigate = { route ->
                     navController.navigate(route)
+                },
+
+                onLogout = {
+                    scope.launch {
+
+                        try {
+
+                            SupabaseClientProvider.client.auth.signOut()
+
+                            navController.navigate(Screen.Login.route) {
+                                popUpTo(Screen.Dashboard.route) {
+                                    inclusive = true
+                                }
+                            }
+
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
                 }
             )
         }

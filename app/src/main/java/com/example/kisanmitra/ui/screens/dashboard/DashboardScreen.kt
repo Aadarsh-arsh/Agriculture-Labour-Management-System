@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -26,7 +27,8 @@ import com.example.kisanmitra.ui.components.DashboardCard
 
 @Composable
 fun DashboardScreen(
-    onNavigate: (String) -> Unit
+    onNavigate: (String) -> Unit,
+    onLogout: () -> Unit
 ) {
 
     val darkGreen = Color(0xFF1B5E20)
@@ -264,7 +266,7 @@ fun DashboardScreen(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 4.dp, bottom = 10.dp),
+                .padding(top = 4.dp),
             shape = RoundedCornerShape(22.dp),
             colors = CardDefaults.cardColors(
                 containerColor = softGreen
@@ -301,6 +303,20 @@ fun DashboardScreen(
                     modifier = Modifier.padding(top = 12.dp)
                 )
             }
+        }
+
+        // Logout button
+        Button(
+            onClick = onLogout,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 4.dp, bottom = 10.dp)
+        ) {
+            Text(
+                text = "Logout",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
