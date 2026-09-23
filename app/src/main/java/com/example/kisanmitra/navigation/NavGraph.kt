@@ -6,6 +6,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.kisanmitra.ui.screens.assignment.LabourAssignmentScreen
 import com.example.kisanmitra.ui.screens.attendance.AttendanceScreen
+import com.example.kisanmitra.ui.screens.auth.LoginScreen
+import com.example.kisanmitra.ui.screens.auth.SignUpScreen
 import com.example.kisanmitra.ui.screens.crop.CropScreen
 import com.example.kisanmitra.ui.screens.crop.CropStageScreen
 import com.example.kisanmitra.ui.screens.dashboard.DashboardScreen
@@ -17,38 +19,79 @@ import com.example.kisanmitra.ui.screens.wage.WageScreen
 
 sealed class Screen(val route: String) {
 
+    data object Login : Screen("login")
+    data object SignUp : Screen("signup")
+
     data object Dashboard : Screen("dashboard")
-
     data object Labour : Screen("labour")
-
     data object Attendance : Screen("attendance")
-
     data object Farm : Screen("farm")
-
     data object Crop : Screen("crop")
-
     data object CropStage : Screen("crop_stage")
-
     data object AgriculturalTask : Screen("agricultural_task")
-
     data object LabourAssignment : Screen("labour_assignment")
-
     data object Wage : Screen("wage")
-
     data object OrganicFarming : Screen("organic_farming")
 }
 
 @Composable
-fun NavGraph(
-    navController: NavHostController
-) {
+fun NavGraph(navController: NavHostController) {
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Dashboard.route
+        startDestination = Screen.Login.route
     ) {
 
-        // Dashboard
+        // -------------------------
+        // LOGIN
+        // -------------------------
+
+        composable(Screen.Login.route) {
+
+            LoginScreen(
+                onLogin = {
+                    navController.navigate(Screen.Dashboard.route) {
+                        popUpTo(Screen.Login.route) {
+                            inclusive = true
+                        }
+                    }
+                },
+
+                onSignUp = {
+                    navController.navigate(Screen.SignUp.route)
+                },
+
+                onForgotPassword = {
+                    // Forgot password will be added later
+                }
+            )
+        }
+
+        // -------------------------
+        // SIGN UP
+        // -------------------------
+
+        composable(Screen.SignUp.route) {
+
+            SignUpScreen(
+                onSignUp = {
+                    navController.navigate(Screen.Dashboard.route) {
+                        popUpTo(Screen.Login.route) {
+                            inclusive = true
+                        }
+                    }
+                },
+
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        // -------------------------
+        // DASHBOARD
+        // -------------------------
+
         composable(Screen.Dashboard.route) {
 
             DashboardScreen(
@@ -58,7 +101,10 @@ fun NavGraph(
             )
         }
 
-        // Labour Management
+        // -------------------------
+        // LABOUR
+        // -------------------------
+
         composable(Screen.Labour.route) {
 
             LabourScreen(
@@ -68,7 +114,10 @@ fun NavGraph(
             )
         }
 
-        // Voice Attendance
+        // -------------------------
+        // ATTENDANCE
+        // -------------------------
+
         composable(Screen.Attendance.route) {
 
             AttendanceScreen(
@@ -78,7 +127,10 @@ fun NavGraph(
             )
         }
 
-        // Farm Management
+        // -------------------------
+        // FARM
+        // -------------------------
+
         composable(Screen.Farm.route) {
 
             FarmScreen(
@@ -88,27 +140,31 @@ fun NavGraph(
             )
         }
 
-        // Crop Management
+        // -------------------------
+        // CROP
+        // -------------------------
+
         composable(Screen.Crop.route) {
 
             CropScreen(
                 onBack = {
                     navController.popBackStack()
                 },
+
                 onAgriculturalTask = {
-                    navController.navigate(
-                        Screen.AgriculturalTask.route
-                    )
+                    navController.navigate(Screen.AgriculturalTask.route)
                 },
+
                 onCropStage = {
-                    navController.navigate(
-                        Screen.CropStage.route
-                    )
+                    navController.navigate(Screen.CropStage.route)
                 }
             )
         }
 
-        // Crop Stage Management
+        // -------------------------
+        // CROP STAGE
+        // -------------------------
+
         composable(Screen.CropStage.route) {
 
             CropStageScreen(
@@ -118,13 +174,17 @@ fun NavGraph(
             )
         }
 
-        // Agricultural Task Management
+        // -------------------------
+        // AGRICULTURAL TASK
+        // -------------------------
+
         composable(Screen.AgriculturalTask.route) {
 
             AgriculturalTaskScreen(
                 onBack = {
                     navController.popBackStack()
                 },
+
                 onAssignLabour = {
                     navController.navigate(
                         Screen.LabourAssignment.route
@@ -133,7 +193,10 @@ fun NavGraph(
             )
         }
 
-        // Labour Assignment
+        // -------------------------
+        // LABOUR ASSIGNMENT
+        // -------------------------
+
         composable(Screen.LabourAssignment.route) {
 
             LabourAssignmentScreen(
@@ -143,7 +206,10 @@ fun NavGraph(
             )
         }
 
-        // Wage Calculation
+        // -------------------------
+        // WAGE
+        // -------------------------
+
         composable(Screen.Wage.route) {
 
             WageScreen(
@@ -153,7 +219,10 @@ fun NavGraph(
             )
         }
 
-        // Organic Farming
+        // -------------------------
+        // ORGANIC FARMING
+        // -------------------------
+
         composable(Screen.OrganicFarming.route) {
 
             OrganicFarmingScreen(
