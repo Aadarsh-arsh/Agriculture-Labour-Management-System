@@ -19,7 +19,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.kisanmitra.R
 import com.example.kisanmitra.data.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.launch
@@ -34,6 +36,16 @@ fun ForgotPasswordScreen(
 
     val scope = rememberCoroutineScope()
 
+    // Localized strings used inside coroutine
+    val pleaseEnterEmail =
+        stringResource(R.string.please_enter_email)
+
+    val resetEmailSent =
+        stringResource(R.string.reset_email_sent)
+
+    val failedToSendResetEmail =
+        stringResource(R.string.failed_to_send_reset_email)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -43,14 +55,14 @@ fun ForgotPasswordScreen(
     ) {
 
         Text(
-            text = "Forgot Password",
+            text = stringResource(R.string.forgot_password),
             style = MaterialTheme.typography.headlineMedium
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "Enter your registered email address.",
+            text = stringResource(R.string.enter_registered_email),
             style = MaterialTheme.typography.bodyMedium
         )
 
@@ -63,7 +75,7 @@ fun ForgotPasswordScreen(
             },
             modifier = Modifier.fillMaxWidth(),
             label = {
-                Text("Email")
+                Text(stringResource(R.string.email))
             },
             singleLine = true
         )
@@ -74,7 +86,7 @@ fun ForgotPasswordScreen(
             onClick = {
 
                 if (email.isBlank()) {
-                    message = "Please enter your email"
+                    message = pleaseEnterEmail
                     return@Button
                 }
 
@@ -89,13 +101,12 @@ fun ForgotPasswordScreen(
                             email
                         )
 
-                        message =
-                            "Password reset email sent. Check your email."
+                        message = resetEmailSent
 
                     } catch (e: Exception) {
 
                         message =
-                            e.message ?: "Failed to send reset email"
+                            e.message ?: failedToSendResetEmail
 
                     } finally {
 
@@ -108,10 +119,11 @@ fun ForgotPasswordScreen(
         ) {
 
             Text(
-                text = if (isLoading)
-                    "Sending..."
-                else
-                    "Send Reset Email"
+                text = if (isLoading) {
+                    stringResource(R.string.sending)
+                } else {
+                    stringResource(R.string.send_reset_email)
+                }
             )
         }
 
@@ -131,7 +143,7 @@ fun ForgotPasswordScreen(
             onClick = onBack,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Back to Login")
+            Text(stringResource(R.string.back_to_login))
         }
     }
 }

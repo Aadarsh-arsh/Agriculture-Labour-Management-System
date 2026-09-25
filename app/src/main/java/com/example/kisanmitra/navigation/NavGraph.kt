@@ -1,7 +1,10 @@
 package com.example.kisanmitra.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,109 +23,160 @@ import com.example.kisanmitra.ui.screens.labour.LabourScreen
 import com.example.kisanmitra.ui.screens.organic.OrganicFarmingScreen
 import com.example.kisanmitra.ui.screens.task.AgriculturalTaskScreen
 import com.example.kisanmitra.ui.screens.wage.WageScreen
+import com.example.kisanmitra.utils.LanguageManager
 import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 
 sealed class Screen(val route: String) {
 
     data object Login : Screen("login")
+
     data object SignUp : Screen("signup")
+
     data object ForgotPassword : Screen("forgot_password")
+
     data object ResetPassword : Screen("reset_password")
 
     data object Dashboard : Screen("dashboard")
+
     data object Labour : Screen("labour")
+
     data object Attendance : Screen("attendance")
+
     data object Farm : Screen("farm")
+
     data object Crop : Screen("crop")
+
     data object CropStage : Screen("crop_stage")
+
     data object AgriculturalTask : Screen("agricultural_task")
+
     data object LabourAssignment : Screen("labour_assignment")
+
     data object Wage : Screen("wage")
+
     data object OrganicFarming : Screen("organic_farming")
 }
 
 @Composable
-fun NavGraph(navController: NavHostController) {
+fun NavGraph(
+    navController: NavHostController
+) {
 
     val scope = rememberCoroutineScope()
+
+    val context = LocalContext.current
+
+    var isHindi by remember {
+        mutableStateOf(
+            LanguageManager.getLanguage(context) == "hi"
+        )
+    }
 
     NavHost(
         navController = navController,
         startDestination = Screen.Login.route
     ) {
 
-        // -------------------------
+        // --------------------------------------------------
         // LOGIN
-        // -------------------------
+        // --------------------------------------------------
 
         composable(Screen.Login.route) {
 
             LoginScreen(
+
                 onLogin = {
-                    navController.navigate(Screen.Dashboard.route) {
-                        popUpTo(Screen.Login.route) {
+
+                    navController.navigate(
+                        Screen.Dashboard.route
+                    ) {
+                        popUpTo(
+                            Screen.Login.route
+                        ) {
                             inclusive = true
                         }
                     }
                 },
 
                 onSignUp = {
-                    navController.navigate(Screen.SignUp.route)
+
+                    navController.navigate(
+                        Screen.SignUp.route
+                    )
                 },
 
                 onForgotPassword = {
-                    navController.navigate(Screen.ForgotPassword.route)
+
+                    navController.navigate(
+                        Screen.ForgotPassword.route
+                    )
                 }
             )
         }
 
-        // -------------------------
+        // --------------------------------------------------
         // SIGN UP
-        // -------------------------
+        // --------------------------------------------------
 
         composable(Screen.SignUp.route) {
 
             SignUpScreen(
+
                 onSignUp = {
-                    navController.navigate(Screen.Dashboard.route) {
-                        popUpTo(Screen.Login.route) {
+
+                    navController.navigate(
+                        Screen.Dashboard.route
+                    ) {
+                        popUpTo(
+                            Screen.Login.route
+                        ) {
                             inclusive = true
                         }
                     }
                 },
 
                 onBack = {
+
                     navController.popBackStack()
                 }
             )
         }
 
-        // -------------------------
+        // --------------------------------------------------
         // FORGOT PASSWORD
-        // -------------------------
+        // --------------------------------------------------
 
         composable(Screen.ForgotPassword.route) {
 
             ForgotPasswordScreen(
+
                 onBack = {
+
                     navController.popBackStack()
                 }
             )
         }
 
-        // -------------------------
+        // --------------------------------------------------
         // RESET PASSWORD
-        // -------------------------
+        // --------------------------------------------------
 
         composable(Screen.ResetPassword.route) {
 
             ResetPasswordScreen(
+
                 onPasswordUpdated = {
 
-                    navController.navigate(Screen.Login.route) {
+                    navController.navigate(
+                        Screen.Login.route
+                    ) {
 
-                        popUpTo(Screen.ResetPassword.route) {
+                        popUpTo(
+                            Screen.ResetPassword.route
+                        ) {
                             inclusive = true
                         }
                     }
@@ -130,27 +184,37 @@ fun NavGraph(navController: NavHostController) {
             )
         }
 
-        // -------------------------
+        // --------------------------------------------------
         // DASHBOARD
-        // -------------------------
+        // --------------------------------------------------
 
         composable(Screen.Dashboard.route) {
 
             DashboardScreen(
+
                 onNavigate = { route ->
+
                     navController.navigate(route)
                 },
 
                 onLogout = {
+
                     scope.launch {
 
                         try {
 
-                            SupabaseClientProvider.client.auth.signOut()
+                            SupabaseClientProvider
+                                .client
+                                .auth
+                                .signOut()
 
-                            navController.navigate(Screen.Login.route) {
+                            navController.navigate(
+                                Screen.Login.route
+                            ) {
 
-                                popUpTo(Screen.Dashboard.route) {
+                                popUpTo(
+                                    Screen.Dashboard.route
+                                ) {
                                     inclusive = true
                                 }
                             }
@@ -160,13 +224,39 @@ fun NavGraph(navController: NavHostController) {
                             e.printStackTrace()
                         }
                     }
-                }
+                },
+
+                onLanguageChange = { hindi ->
+
+                    isHindi = hindi
+
+                    val language =
+                        if (hindi) {
+                            "hi"
+                        } else {
+                            "en"
+                        }
+
+                    LanguageManager.saveLanguage(
+                        context = context,
+                        language = language
+                    )
+
+                    // Recreate the activity so the complete
+                    // application language is applied.
+                    val activity =
+                        context as? android.app.Activity
+
+                    activity?.recreate()
+                },
+
+                isHindi = isHindi
             )
         }
 
-        // -------------------------
+        // --------------------------------------------------
         // LABOUR
-        // -------------------------
+        // --------------------------------------------------
 
         composable(Screen.Labour.route) {
 
@@ -177,9 +267,9 @@ fun NavGraph(navController: NavHostController) {
             )
         }
 
-        // -------------------------
+        // --------------------------------------------------
         // ATTENDANCE
-        // -------------------------
+        // --------------------------------------------------
 
         composable(Screen.Attendance.route) {
 
@@ -190,9 +280,9 @@ fun NavGraph(navController: NavHostController) {
             )
         }
 
-        // -------------------------
+        // --------------------------------------------------
         // FARM
-        // -------------------------
+        // --------------------------------------------------
 
         composable(Screen.Farm.route) {
 
@@ -203,24 +293,27 @@ fun NavGraph(navController: NavHostController) {
             )
         }
 
-        // -------------------------
+        // --------------------------------------------------
         // CROP
-        // -------------------------
+        // --------------------------------------------------
 
         composable(Screen.Crop.route) {
 
             CropScreen(
+
                 onBack = {
                     navController.popBackStack()
                 },
 
                 onAgriculturalTask = {
+
                     navController.navigate(
                         Screen.AgriculturalTask.route
                     )
                 },
 
                 onCropStage = {
+
                     navController.navigate(
                         Screen.CropStage.route
                     )
@@ -228,9 +321,9 @@ fun NavGraph(navController: NavHostController) {
             )
         }
 
-        // -------------------------
+        // --------------------------------------------------
         // CROP STAGE
-        // -------------------------
+        // --------------------------------------------------
 
         composable(Screen.CropStage.route) {
 
@@ -241,18 +334,20 @@ fun NavGraph(navController: NavHostController) {
             )
         }
 
-        // -------------------------
+        // --------------------------------------------------
         // AGRICULTURAL TASK
-        // -------------------------
+        // --------------------------------------------------
 
         composable(Screen.AgriculturalTask.route) {
 
             AgriculturalTaskScreen(
+
                 onBack = {
                     navController.popBackStack()
                 },
 
                 onAssignLabour = {
+
                     navController.navigate(
                         Screen.LabourAssignment.route
                     )
@@ -260,9 +355,9 @@ fun NavGraph(navController: NavHostController) {
             )
         }
 
-        // -------------------------
+        // --------------------------------------------------
         // LABOUR ASSIGNMENT
-        // -------------------------
+        // --------------------------------------------------
 
         composable(Screen.LabourAssignment.route) {
 
@@ -273,9 +368,9 @@ fun NavGraph(navController: NavHostController) {
             )
         }
 
-        // -------------------------
+        // --------------------------------------------------
         // WAGE
-        // -------------------------
+        // --------------------------------------------------
 
         composable(Screen.Wage.route) {
 
@@ -286,9 +381,9 @@ fun NavGraph(navController: NavHostController) {
             )
         }
 
-        // -------------------------
+        // --------------------------------------------------
         // ORGANIC FARMING
-        // -------------------------
+        // --------------------------------------------------
 
         composable(Screen.OrganicFarming.route) {
 

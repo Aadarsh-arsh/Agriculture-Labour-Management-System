@@ -19,8 +19,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.example.kisanmitra.R
 import com.example.kisanmitra.data.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.launch
@@ -53,6 +55,16 @@ fun SignUpScreen(
 
     val scope = rememberCoroutineScope()
 
+    // Localized strings used inside coroutine
+    val pleaseFillAllFields =
+        stringResource(R.string.please_fill_all_fields)
+
+    val accountCreatedSuccessfully =
+        stringResource(R.string.account_created_successfully)
+
+    val accountCreationFailed =
+        stringResource(R.string.account_creation_failed)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -62,7 +74,7 @@ fun SignUpScreen(
     ) {
 
         Text(
-            text = "Create Account",
+            text = stringResource(R.string.create_account),
             style = MaterialTheme.typography.headlineMedium
         )
 
@@ -89,7 +101,7 @@ fun SignUpScreen(
             },
             modifier = Modifier.fillMaxWidth(),
             label = {
-                Text("Email")
+                Text(stringResource(R.string.email))
             },
             singleLine = true
         )
@@ -103,7 +115,7 @@ fun SignUpScreen(
             },
             modifier = Modifier.fillMaxWidth(),
             label = {
-                Text("Password")
+                Text(stringResource(R.string.password))
             },
             singleLine = true,
             visualTransformation = PasswordVisualTransformation()
@@ -119,7 +131,7 @@ fun SignUpScreen(
                     email.isBlank() ||
                     password.isBlank()
                 ) {
-                    message = "Please fill all fields"
+                    message = pleaseFillAllFields
                     return@Button
                 }
 
@@ -137,8 +149,7 @@ fun SignUpScreen(
                             this.password = password
                         }
 
-                        message =
-                            "Account created successfully!"
+                        message = accountCreatedSuccessfully
 
                         isLoading = false
 
@@ -148,8 +159,7 @@ fun SignUpScreen(
 
                         isLoading = false
 
-                        message =
-                            e.message ?: "Account creation failed"
+                        message = e.message ?: accountCreationFailed
                     }
                 }
             },
@@ -159,9 +169,9 @@ fun SignUpScreen(
 
             Text(
                 text = if (isLoading) {
-                    "Creating Account..."
+                    stringResource(R.string.creating_account)
                 } else {
-                    "Create Account"
+                    stringResource(R.string.create_account)
                 }
             )
         }
@@ -182,7 +192,7 @@ fun SignUpScreen(
             onClick = onBack,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Back to Login")
+            Text(stringResource(R.string.back_to_login))
         }
     }
 }

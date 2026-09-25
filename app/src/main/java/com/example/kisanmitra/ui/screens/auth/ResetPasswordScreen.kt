@@ -19,8 +19,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.example.kisanmitra.R
 import com.example.kisanmitra.data.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.launch
@@ -48,6 +50,22 @@ fun ResetPasswordScreen(
 
     val scope = rememberCoroutineScope()
 
+    // Localized strings used inside coroutine
+    val pleaseFillBothPasswordFields =
+        stringResource(R.string.please_fill_both_password_fields)
+
+    val passwordMinimum =
+        stringResource(R.string.password_minimum)
+
+    val passwordsNotMatch =
+        stringResource(R.string.passwords_not_match)
+
+    val passwordUpdatedSuccessfully =
+        stringResource(R.string.password_updated_successfully)
+
+    val failedToUpdatePassword =
+        stringResource(R.string.failed_to_update_password)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -57,7 +75,7 @@ fun ResetPasswordScreen(
     ) {
 
         Text(
-            text = "Reset Password",
+            text = stringResource(R.string.reset_password),
             style = MaterialTheme.typography.headlineMedium
         )
 
@@ -66,7 +84,7 @@ fun ResetPasswordScreen(
         )
 
         Text(
-            text = "Enter your new password.",
+            text = stringResource(R.string.enter_new_password),
             style = MaterialTheme.typography.bodyMedium
         )
 
@@ -81,7 +99,7 @@ fun ResetPasswordScreen(
             },
             modifier = Modifier.fillMaxWidth(),
             label = {
-                Text("New Password")
+                Text(stringResource(R.string.new_password))
             },
             singleLine = true,
             visualTransformation = PasswordVisualTransformation()
@@ -98,7 +116,7 @@ fun ResetPasswordScreen(
             },
             modifier = Modifier.fillMaxWidth(),
             label = {
-                Text("Confirm Password")
+                Text(stringResource(R.string.confirm_password))
             },
             singleLine = true,
             visualTransformation = PasswordVisualTransformation()
@@ -112,17 +130,17 @@ fun ResetPasswordScreen(
             onClick = {
 
                 if (password.isBlank() || confirmPassword.isBlank()) {
-                    message = "Please fill both password fields"
+                    message = pleaseFillBothPasswordFields
                     return@Button
                 }
 
                 if (password.length < 6) {
-                    message = "Password must be at least 6 characters"
+                    message = passwordMinimum
                     return@Button
                 }
 
                 if (password != confirmPassword) {
-                    message = "Passwords do not match"
+                    message = passwordsNotMatch
                     return@Button
                 }
 
@@ -139,7 +157,7 @@ fun ResetPasswordScreen(
 
                         isLoading = false
 
-                        message = "Password updated successfully!"
+                        message = passwordUpdatedSuccessfully
 
                         onPasswordUpdated()
 
@@ -148,7 +166,7 @@ fun ResetPasswordScreen(
                         isLoading = false
 
                         message =
-                            e.message ?: "Failed to update password"
+                            e.message ?: failedToUpdatePassword
                     }
                 }
             },
@@ -158,9 +176,9 @@ fun ResetPasswordScreen(
 
             Text(
                 text = if (isLoading) {
-                    "Updating..."
+                    stringResource(R.string.updating)
                 } else {
-                    "Update Password"
+                    stringResource(R.string.update_password)
                 }
             )
         }

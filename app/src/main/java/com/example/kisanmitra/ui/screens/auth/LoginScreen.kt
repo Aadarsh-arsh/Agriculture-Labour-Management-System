@@ -19,8 +19,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.example.kisanmitra.R
 import com.example.kisanmitra.data.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
@@ -51,6 +53,13 @@ fun LoginScreen(
 
     val scope = rememberCoroutineScope()
 
+    // Localized strings
+    val pleaseEnterEmailPassword =
+        stringResource(R.string.please_enter_email_password)
+
+    val loginFailed =
+        stringResource(R.string.login_failed)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -60,14 +69,14 @@ fun LoginScreen(
     ) {
 
         Text(
-            text = "KisanMitra",
+            text = stringResource(R.string.kisanmitra),
             style = MaterialTheme.typography.headlineLarge
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Farmer Login",
+            text = stringResource(R.string.farmer_login),
             style = MaterialTheme.typography.titleMedium
         )
 
@@ -81,7 +90,7 @@ fun LoginScreen(
             },
             modifier = Modifier.fillMaxWidth(),
             label = {
-                Text("Email")
+                Text(stringResource(R.string.email))
             },
             singleLine = true
         )
@@ -96,7 +105,7 @@ fun LoginScreen(
             },
             modifier = Modifier.fillMaxWidth(),
             label = {
-                Text("Password")
+                Text(stringResource(R.string.password))
             },
             singleLine = true,
             visualTransformation = PasswordVisualTransformation()
@@ -112,7 +121,7 @@ fun LoginScreen(
                     email.isBlank() ||
                     password.isBlank()
                 ) {
-                    message = "Please enter email and password"
+                    message = pleaseEnterEmailPassword
                     return@Button
                 }
 
@@ -138,8 +147,7 @@ fun LoginScreen(
 
                         isLoading = false
 
-                        message =
-                            e.message ?: "Login failed"
+                        message = e.message ?: loginFailed
                     }
                 }
             },
@@ -149,9 +157,9 @@ fun LoginScreen(
 
             Text(
                 text = if (isLoading) {
-                    "Logging in..."
+                    stringResource(R.string.logging_in)
                 } else {
-                    "Login"
+                    stringResource(R.string.login)
                 }
             )
         }
@@ -163,7 +171,7 @@ fun LoginScreen(
             onClick = onSignUp,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Create Account")
+            Text(stringResource(R.string.create_account))
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -173,7 +181,7 @@ fun LoginScreen(
             onClick = onForgotPassword,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Forgot Password?")
+            Text(stringResource(R.string.forgot_password))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
