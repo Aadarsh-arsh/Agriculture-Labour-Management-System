@@ -38,6 +38,12 @@ class AgriculturalTaskViewModel(
     val tasks: StateFlow<List<AgriculturalTask>> =
         _tasks.asStateFlow()
 
+    private val _errorMessage =
+        MutableStateFlow<String?>(null)
+
+    val errorMessage: StateFlow<String?> =
+        _errorMessage.asStateFlow()
+
     init {
         loadTasks()
     }
@@ -99,6 +105,8 @@ class AgriculturalTaskViewModel(
         status: String
     ) {
 
+        _errorMessage.value = null
+
         val cleanTaskName =
             taskName.trim()
 
@@ -111,12 +119,35 @@ class AgriculturalTaskViewModel(
         val cleanStatus =
             status.trim()
 
-        if (
-            cleanTaskName.isBlank() ||
-            cleanCropName.isBlank() ||
-            cleanTaskDate.isBlank() ||
-            cleanStatus.isBlank()
-        ) {
+        if (cleanTaskName.isBlank()) {
+
+            _errorMessage.value =
+                "Please enter task name"
+
+            return
+        }
+
+        if (cleanCropName.isBlank()) {
+
+            _errorMessage.value =
+                "Please select a crop"
+
+            return
+        }
+
+        if (cleanTaskDate.isBlank()) {
+
+            _errorMessage.value =
+                "Please enter task date"
+
+            return
+        }
+
+        if (cleanStatus.isBlank()) {
+
+            _errorMessage.value =
+                "Please select task status"
+
             return
         }
 
@@ -146,14 +177,28 @@ class AgriculturalTaskViewModel(
                     e
                 )
 
-                localRepository.insertTask(
-                    AgriculturalTask(
-                        taskName = cleanTaskName,
-                        cropName = cleanCropName,
-                        taskDate = cleanTaskDate,
-                        status = cleanStatus
+                try {
+
+                    localRepository.insertTask(
+                        AgriculturalTask(
+                            taskName = cleanTaskName,
+                            cropName = cleanCropName,
+                            taskDate = cleanTaskDate,
+                            status = cleanStatus
+                        )
                     )
-                )
+
+                } catch (localException: Exception) {
+
+                    Log.e(
+                        "TASK_SUPABASE",
+                        "LOCAL INSERT FAILED: ${localException.message}",
+                        localException
+                    )
+
+                    _errorMessage.value =
+                        "Unable to save task"
+                }
             }
         }
     }
@@ -161,6 +206,8 @@ class AgriculturalTaskViewModel(
     fun deleteTask(
         task: AgriculturalTask
     ) {
+
+        _errorMessage.value = null
 
         viewModelScope.launch {
 
@@ -185,9 +232,27 @@ class AgriculturalTaskViewModel(
                     e
                 )
 
-                localRepository.deleteTask(task)
+                try {
+
+                    localRepository.deleteTask(task)
+
+                } catch (localException: Exception) {
+
+                    Log.e(
+                        "TASK_SUPABASE",
+                        "LOCAL DELETE FAILED: ${localException.message}",
+                        localException
+                    )
+
+                    _errorMessage.value =
+                        "Unable to delete task"
+                }
             }
         }
+    }
+
+    fun clearError() {
+        _errorMessage.value = null
     }
 
     private fun convertDateForDisplay(

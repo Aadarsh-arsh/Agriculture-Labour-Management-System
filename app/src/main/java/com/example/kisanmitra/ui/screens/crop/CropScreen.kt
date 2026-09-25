@@ -1,5 +1,6 @@
 package com.example.kisanmitra.ui.screens.crop
 
+import androidx.compose.material3.AlertDialog
 import android.app.DatePickerDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -50,10 +51,15 @@ fun CropScreen(
         initial = emptyList()
     )
 
+    val errorMessage by viewModel.errorMessage.collectAsState(
+        initial = null
+    )
+
     var cropName by remember { mutableStateOf("") }
     var farmName by remember { mutableStateOf("") }
     var sowingDate by remember { mutableStateOf("") }
     var cropStage by remember { mutableStateOf("") }
+    var cropToDelete by remember { mutableStateOf<Crop?>(null) }
 
     val calendar = remember {
         Calendar.getInstance()
@@ -120,7 +126,13 @@ fun CropScreen(
 
                 OutlinedTextField(
                     value = cropName,
-                    onValueChange = { cropName = it },
+                    onValueChange = {
+                        cropName = it
+
+                        if (errorMessage != null) {
+                            viewModel.clearError()
+                        }
+                    },
                     label = {
                         Text("Crop Name")
                     },
@@ -133,7 +145,13 @@ fun CropScreen(
 
                 OutlinedTextField(
                     value = farmName,
-                    onValueChange = { farmName = it },
+                    onValueChange = {
+                        farmName = it
+
+                        if (errorMessage != null) {
+                            viewModel.clearError()
+                        }
+                    },
                     label = {
                         Text("Farm Name")
                     },
@@ -181,6 +199,10 @@ fun CropScreen(
                                         month + 1,
                                         year
                                     )
+
+                                if (errorMessage != null) {
+                                    viewModel.clearError()
+                                }
                             },
                             calendar.get(Calendar.YEAR),
                             calendar.get(Calendar.MONTH),
@@ -205,7 +227,13 @@ fun CropScreen(
 
                 OutlinedTextField(
                     value = cropStage,
-                    onValueChange = { cropStage = it },
+                    onValueChange = {
+                        cropStage = it
+
+                        if (errorMessage != null) {
+                            viewModel.clearError()
+                        }
+                    },
                     label = {
                         Text("Crop Stage")
                     },
@@ -216,8 +244,40 @@ fun CropScreen(
                     shape = RoundedCornerShape(14.dp)
                 )
 
+                // Validation error
+                if (errorMessage != null) {
+                    Text(
+                        text = errorMessage ?: "",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color(0xFFC62828),
+                        modifier = Modifier.padding(
+                            top = 8.dp,
+                            start = 4.dp
+                        )
+                    )
+                }
+
                 Button(
                     onClick = {
+
+                        val cleanCropName =
+                            cropName.trim()
+
+                        val cleanFarmName =
+                            farmName.trim()
+
+                        val cleanSowingDate =
+                            sowingDate.trim()
+
+                        val cleanCropStage =
+                            cropStage.trim()
+
+                        val validInput =
+                            cleanCropName.isNotBlank() &&
+                                    cleanFarmName.isNotBlank() &&
+                                    cleanSowingDate.isNotBlank() &&
+                                    cleanCropStage.isNotBlank()
 
                         viewModel.addCrop(
                             cropName = cropName,
@@ -226,10 +286,12 @@ fun CropScreen(
                             cropStage = cropStage
                         )
 
-                        cropName = ""
-                        farmName = ""
-                        sowingDate = ""
-                        cropStage = ""
+                        if (validInput) {
+                            cropName = ""
+                            farmName = ""
+                            sowingDate = ""
+                            cropStage = ""
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -246,13 +308,62 @@ fun CropScreen(
                     )
                 }
             }
+            if (cropToDelete != null) {
+
+                AlertDialog(
+                    onDismissRequest = {
+                        cropToDelete = null
+                    },
+                    title = {
+                        Text(
+                            text = "Delete Crop?"
+                        )
+                    },
+                    text = {
+                        Text(
+                            text = "Are you sure you want to delete \"${cropToDelete?.cropName}\"?"
+                        )
+                    },
+                    confirmButton = {
+
+                        Button(
+                            onClick = {
+
+                                cropToDelete?.let {
+                                    viewModel.deleteCrop(it)
+                                }
+
+                                cropToDelete = null
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFFC62828)
+                            )
+                        ) {
+                            Text("Delete")
+                        }
+                    },
+                    dismissButton = {
+
+                        Button(
+                            onClick = {
+                                cropToDelete = null
+                            }
+                        ) {
+                            Text("Cancel")
+                        }
+                    }
+                )
+            }
         }
 
         // Crop section
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 20.dp, bottom = 8.dp),
+                .padding(
+                    top = 20.dp,
+                    bottom = 8.dp
+                ),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
@@ -310,7 +421,7 @@ fun CropScreen(
                 CropCard(
                     crop = crop,
                     onDelete = {
-                        viewModel.deleteCrop(crop)
+                        cropToDelete = crop
                     }
                 )
             }
@@ -428,7 +539,9 @@ private fun CropCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
 
             Card(
                 modifier = Modifier.fillMaxWidth(),

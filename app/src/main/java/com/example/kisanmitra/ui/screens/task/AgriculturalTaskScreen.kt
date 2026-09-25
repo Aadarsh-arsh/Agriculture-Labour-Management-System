@@ -10,10 +10,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -58,6 +59,8 @@ fun AgriculturalTaskScreen(
         initial = emptyList()
     )
 
+    val errorMessage by viewModel.errorMessage.collectAsState()
+
     var taskName by remember {
         mutableStateOf("")
     }
@@ -72,6 +75,10 @@ fun AgriculturalTaskScreen(
 
     var status by remember {
         mutableStateOf("")
+    }
+
+    var taskToDelete by remember {
+        mutableStateOf<AgriculturalTask?>(null)
     }
 
     val calendar = remember {
@@ -89,10 +96,14 @@ fun AgriculturalTaskScreen(
             color = FarmGreen,
             modifier = Modifier.fillMaxWidth()
         ) {
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                    .padding(
+                        horizontal = 16.dp,
+                        vertical = 16.dp
+                    ),
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
@@ -107,7 +118,10 @@ fun AgriculturalTaskScreen(
                             Color.White.copy(alpha = 0.15f),
                             RoundedCornerShape(10.dp)
                         )
-                        .padding(horizontal = 10.dp, vertical = 2.dp)
+                        .padding(
+                            horizontal = 10.dp,
+                            vertical = 2.dp
+                        )
                 )
 
                 Column(
@@ -138,7 +152,9 @@ fun AgriculturalTaskScreen(
         ) {
 
             item {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(
+                    modifier = Modifier.height(8.dp)
+                )
             }
 
             // Add Task Card
@@ -173,12 +189,15 @@ fun AgriculturalTaskScreen(
                             modifier = Modifier.padding(top = 3.dp)
                         )
 
-                        Spacer(modifier = Modifier.height(14.dp))
+                        Spacer(
+                            modifier = Modifier.height(14.dp)
+                        )
 
                         OutlinedTextField(
                             value = taskName,
                             onValueChange = {
                                 taskName = it
+                                viewModel.clearError()
                             },
                             label = {
                                 Text("Task Name")
@@ -191,12 +210,15 @@ fun AgriculturalTaskScreen(
                             shape = RoundedCornerShape(12.dp)
                         )
 
-                        Spacer(modifier = Modifier.height(10.dp))
+                        Spacer(
+                            modifier = Modifier.height(10.dp)
+                        )
 
                         OutlinedTextField(
                             value = cropName,
                             onValueChange = {
                                 cropName = it
+                                viewModel.clearError()
                             },
                             label = {
                                 Text("Crop Name")
@@ -209,7 +231,9 @@ fun AgriculturalTaskScreen(
                             shape = RoundedCornerShape(12.dp)
                         )
 
-                        Spacer(modifier = Modifier.height(10.dp))
+                        Spacer(
+                            modifier = Modifier.height(10.dp)
+                        )
 
                         OutlinedTextField(
                             value = taskDate,
@@ -228,21 +252,31 @@ fun AgriculturalTaskScreen(
                         Button(
                             onClick = {
 
-                                val datePicker = DatePickerDialog(
-                                    context,
-                                    { _, year, month, dayOfMonth ->
+                                val datePicker =
+                                    DatePickerDialog(
+                                        context,
+                                        { _, year, month, dayOfMonth ->
 
-                                        taskDate = String.format(
-                                            "%02d/%02d/%04d",
-                                            dayOfMonth,
-                                            month + 1,
-                                            year
+                                            taskDate =
+                                                String.format(
+                                                    "%02d/%02d/%04d",
+                                                    dayOfMonth,
+                                                    month + 1,
+                                                    year
+                                                )
+
+                                            viewModel.clearError()
+                                        },
+                                        calendar.get(
+                                            Calendar.YEAR
+                                        ),
+                                        calendar.get(
+                                            Calendar.MONTH
+                                        ),
+                                        calendar.get(
+                                            Calendar.DAY_OF_MONTH
                                         )
-                                    },
-                                    calendar.get(Calendar.YEAR),
-                                    calendar.get(Calendar.MONTH),
-                                    calendar.get(Calendar.DAY_OF_MONTH)
-                                )
+                                    )
 
                                 datePicker.show()
                             },
@@ -255,34 +289,60 @@ fun AgriculturalTaskScreen(
                                 contentColor = DarkGreen
                             )
                         ) {
+
                             Text(
                                 text = "Select Task Date",
                                 fontWeight = FontWeight.SemiBold
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(10.dp))
+                        Spacer(
+                            modifier = Modifier.height(10.dp)
+                        )
 
                         OutlinedTextField(
                             value = status,
                             onValueChange = {
                                 status = it
+                                viewModel.clearError()
                             },
                             label = {
                                 Text("Status")
                             },
                             placeholder = {
-                                Text("Pending / In Progress / Completed")
+                                Text(
+                                    "Pending / In Progress / Completed"
+                                )
                             },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp)
                         )
 
-                        Spacer(modifier = Modifier.height(14.dp))
+                        if (errorMessage != null) {
+
+                            Text(
+                                text = errorMessage!!,
+                                color = Color(0xFFC62828),
+                                fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.padding(
+                                    top = 8.dp
+                                )
+                            )
+                        }
+
+                        Spacer(
+                            modifier = Modifier.height(14.dp)
+                        )
 
                         Button(
                             onClick = {
+
+                                val beforeTaskName = taskName
+                                val beforeCropName = cropName
+                                val beforeTaskDate = taskDate
+                                val beforeStatus = status
 
                                 viewModel.addTask(
                                     taskName = taskName,
@@ -291,10 +351,18 @@ fun AgriculturalTaskScreen(
                                     status = status
                                 )
 
-                                taskName = ""
-                                cropName = ""
-                                taskDate = ""
-                                status = ""
+                                if (
+                                    beforeTaskName.isNotBlank() &&
+                                    beforeCropName.isNotBlank() &&
+                                    beforeTaskDate.isNotBlank() &&
+                                    beforeStatus.isNotBlank()
+                                ) {
+
+                                    taskName = ""
+                                    cropName = ""
+                                    taskDate = ""
+                                    status = ""
+                                }
                             },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp),
@@ -302,6 +370,7 @@ fun AgriculturalTaskScreen(
                                 containerColor = FarmGreen
                             )
                         ) {
+
                             Text(
                                 text = "Add Agricultural Task",
                                 fontWeight = FontWeight.Bold
@@ -346,7 +415,7 @@ fun AgriculturalTaskScreen(
                 AgriculturalTaskCard(
                     task = task,
                     onDelete = {
-                        viewModel.deleteTask(task)
+                        taskToDelete = task
                     }
                 )
             }
@@ -354,7 +423,9 @@ fun AgriculturalTaskScreen(
             // Navigation buttons
             item {
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(
+                    modifier = Modifier.height(4.dp)
+                )
 
                 Button(
                     onClick = onAssignLabour,
@@ -364,13 +435,16 @@ fun AgriculturalTaskScreen(
                         containerColor = DarkGreen
                     )
                 ) {
+
                     Text(
                         text = "Assign Labour",
                         fontWeight = FontWeight.Bold
                     )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(
+                    modifier = Modifier.height(8.dp)
+                )
 
                 Button(
                     onClick = onBack,
@@ -380,15 +454,71 @@ fun AgriculturalTaskScreen(
                         containerColor = Color.Gray
                     )
                 ) {
+
                     Text(
                         text = "Back",
                         fontWeight = FontWeight.Bold
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(
+                    modifier = Modifier.height(16.dp)
+                )
             }
         }
+    }
+
+    // Delete confirmation dialog
+    if (taskToDelete != null) {
+
+        AlertDialog(
+            onDismissRequest = {
+                taskToDelete = null
+            },
+            title = {
+                Text(
+                    text = "Delete Agricultural Task?"
+                )
+            },
+            text = {
+                Text(
+                    text = "Are you sure you want to delete \"${taskToDelete?.taskName}\"?"
+                )
+            },
+            confirmButton = {
+
+                TextButton(
+                    onClick = {
+
+                        taskToDelete?.let {
+                            viewModel.deleteTask(it)
+                        }
+
+                        taskToDelete = null
+                    }
+                ) {
+
+                    Text(
+                        text = "Delete",
+                        color = DeleteRed,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+
+                TextButton(
+                    onClick = {
+                        taskToDelete = null
+                    }
+                ) {
+
+                    Text(
+                        text = "Cancel"
+                    )
+                }
+            }
+        )
     }
 }
 
@@ -439,12 +569,12 @@ private fun AgriculturalTaskCard(
 
                 IconButton(
                     onClick = onDelete,
-                    modifier = Modifier
-                        .background(
-                            Color(0xFFFFEBEE),
-                            RoundedCornerShape(12.dp)
-                        )
+                    modifier = Modifier.background(
+                        Color(0xFFFFEBEE),
+                        RoundedCornerShape(12.dp)
+                    )
                 ) {
+
                     Text(
                         text = "×",
                         color = DeleteRed,
@@ -454,7 +584,9 @@ private fun AgriculturalTaskCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
 
             // Task information
             Row(
@@ -469,6 +601,7 @@ private fun AgriculturalTaskCard(
             ) {
 
                 Column {
+
                     Text(
                         text = "DATE",
                         style = MaterialTheme.typography.labelSmall,

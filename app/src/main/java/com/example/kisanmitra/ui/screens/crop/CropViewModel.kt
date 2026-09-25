@@ -32,6 +32,12 @@ class CropViewModel(
     val crops: StateFlow<List<Crop>> =
         _crops.asStateFlow()
 
+    private val _errorMessage =
+        MutableStateFlow<String?>(null)
+
+    val errorMessage: StateFlow<String?> =
+        _errorMessage.asStateFlow()
+
     init {
         loadCrops()
     }
@@ -73,6 +79,8 @@ class CropViewModel(
                         )
                     }
 
+                _errorMessage.value = null
+
             } catch (e: Exception) {
 
                 localRepository.allCrops.collect { localCrops ->
@@ -101,14 +109,35 @@ class CropViewModel(
         val cleanCropStage =
             cropStage.trim()
 
-        if (
-            cleanCropName.isBlank() ||
-            cleanFarmName.isBlank() ||
-            cleanSowingDate.isBlank() ||
-            cleanCropStage.isBlank()
-        ) {
+        // Crop name validation
+        if (cleanCropName.isBlank()) {
+            _errorMessage.value =
+                "Please enter crop name"
             return
         }
+
+        // Farm validation
+        if (cleanFarmName.isBlank()) {
+            _errorMessage.value =
+                "Please select a farm"
+            return
+        }
+
+        // Sowing date validation
+        if (cleanSowingDate.isBlank()) {
+            _errorMessage.value =
+                "Please enter sowing date"
+            return
+        }
+
+        // Crop stage validation
+        if (cleanCropStage.isBlank()) {
+            _errorMessage.value =
+                "Please select crop stage"
+            return
+        }
+
+        _errorMessage.value = null
 
         viewModelScope.launch {
 
@@ -125,14 +154,24 @@ class CropViewModel(
 
             } catch (e: Exception) {
 
-                localRepository.insertCrop(
-                    Crop(
-                        cropName = cleanCropName,
-                        farmName = cleanFarmName,
-                        sowingDate = cleanSowingDate,
-                        cropStage = cleanCropStage
+                try {
+
+                    localRepository.insertCrop(
+                        Crop(
+                            cropName = cleanCropName,
+                            farmName = cleanFarmName,
+                            sowingDate = cleanSowingDate,
+                            cropStage = cleanCropStage
+                        )
                     )
-                )
+
+                    _errorMessage.value = null
+
+                } catch (localError: Exception) {
+
+                    _errorMessage.value =
+                        "Unable to save crop"
+                }
             }
         }
     }
@@ -153,9 +192,21 @@ class CropViewModel(
 
             } catch (e: Exception) {
 
-                localRepository.deleteCrop(crop)
+                try {
+
+                    localRepository.deleteCrop(crop)
+
+                } catch (localError: Exception) {
+
+                    _errorMessage.value =
+                        "Unable to delete crop"
+                }
             }
         }
+    }
+
+    fun clearError() {
+        _errorMessage.value = null
     }
 
     private fun convertDateForDisplay(

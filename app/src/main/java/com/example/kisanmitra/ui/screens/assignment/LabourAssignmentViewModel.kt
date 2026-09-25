@@ -78,16 +78,19 @@ class LabourAssignmentViewModel(
     val agriculturalTasks: StateFlow<List<AgriculturalTask>> =
         _agriculturalTasks.asStateFlow()
 
+    private val _errorMessage =
+        MutableStateFlow<String?>(null)
+
+    val errorMessage: StateFlow<String?> =
+        _errorMessage.asStateFlow()
+
     init {
         loadAllData()
     }
 
     private fun loadAllData() {
-
         viewModelScope.launch {
-
             try {
-
                 val supabaseLabourers =
                     labourRepository.getLabourers()
 
@@ -102,7 +105,6 @@ class LabourAssignmentViewModel(
 
                 _labourers.value =
                     supabaseLabourers.map { labour ->
-
                         Labour(
                             id = labour.id?.toInt() ?: 0,
                             name = labour.name,
@@ -114,7 +116,6 @@ class LabourAssignmentViewModel(
 
                 _farms.value =
                     supabaseFarms.map { farm ->
-
                         Farm(
                             id = farm.id?.toInt() ?: 0,
                             farmName = farm.farm_name,
@@ -125,7 +126,6 @@ class LabourAssignmentViewModel(
 
                 _crops.value =
                     supabaseCrops.map { crop ->
-
                         val farmName =
                             supabaseFarms
                                 .firstOrNull {
@@ -148,7 +148,6 @@ class LabourAssignmentViewModel(
 
                 _agriculturalTasks.value =
                     supabaseTasks.map { task ->
-
                         val cropName =
                             supabaseCrops
                                 .firstOrNull {
@@ -172,7 +171,6 @@ class LabourAssignmentViewModel(
                 loadAssignments()
 
             } catch (e: Exception) {
-
                 Log.e(
                     "ASSIGNMENT_SUPABASE",
                     "LOAD FAILED: ${e.message}",
@@ -187,11 +185,8 @@ class LabourAssignmentViewModel(
     }
 
     private fun loadAssignments() {
-
         viewModelScope.launch {
-
             try {
-
                 val supabaseAssignments =
                     supabaseRepository.getAssignments()
 
@@ -248,16 +243,11 @@ class LabourAssignmentViewModel(
                                     ?.toInt()
                                     ?: 0,
                             labourId =
-                                assignment.labour_id
-                                    .toInt(),
-                            labourName =
-                                labourName,
-                            farmName =
-                                farmName,
-                            cropName =
-                                cropName,
-                            taskName =
-                                taskName,
+                                assignment.labour_id.toInt(),
+                            labourName = labourName,
+                            farmName = farmName,
+                            cropName = cropName,
+                            taskName = taskName,
                             assignmentDate =
                                 convertDateForDisplay(
                                     assignment.assignment_date
@@ -266,7 +256,6 @@ class LabourAssignmentViewModel(
                     }
 
             } catch (e: Exception) {
-
                 Log.e(
                     "ASSIGNMENT_SUPABASE",
                     "ASSIGNMENT LOAD FAILED: ${e.message}",
@@ -288,44 +277,47 @@ class LabourAssignmentViewModel(
         taskName: String,
         assignmentDate: String
     ) {
+        _errorMessage.value = null
 
-        val cleanLabourName =
-            labourName.trim()
+        val cleanLabourName = labourName.trim()
+        val cleanFarmName = farmName.trim()
+        val cleanCropName = cropName.trim()
+        val cleanTaskName = taskName.trim()
+        val cleanAssignmentDate = assignmentDate.trim()
 
-        val cleanFarmName =
-            farmName.trim()
+        if (labourId <= 0 || cleanLabourName.isBlank()) {
+            _errorMessage.value = "Please select a labourer"
+            return
+        }
 
-        val cleanCropName =
-            cropName.trim()
+        if (cleanFarmName.isBlank()) {
+            _errorMessage.value = "Please select a farm"
+            return
+        }
 
-        val cleanTaskName =
-            taskName.trim()
+        if (cleanCropName.isBlank()) {
+            _errorMessage.value = "Please select a crop"
+            return
+        }
 
-        val cleanAssignmentDate =
-            assignmentDate.trim()
+        if (cleanTaskName.isBlank()) {
+            _errorMessage.value = "Please select a task"
+            return
+        }
 
-        if (
-            labourId <= 0 ||
-            cleanLabourName.isBlank() ||
-            cleanFarmName.isBlank() ||
-            cleanCropName.isBlank() ||
-            cleanTaskName.isBlank() ||
-            cleanAssignmentDate.isBlank()
-        ) {
+        if (cleanAssignmentDate.isBlank()) {
+            _errorMessage.value = "Please enter assignment date"
             return
         }
 
         viewModelScope.launch {
-
             try {
-
                 supabaseRepository.addAssignment(
                     labourName = cleanLabourName,
                     farmName = cleanFarmName,
                     cropName = cleanCropName,
                     taskName = cleanTaskName,
-                    assignmentDate =
-                        cleanAssignmentDate
+                    assignmentDate = cleanAssignmentDate
                 )
 
                 Log.d(
@@ -336,24 +328,33 @@ class LabourAssignmentViewModel(
                 loadAssignments()
 
             } catch (e: Exception) {
-
                 Log.e(
                     "ASSIGNMENT_SUPABASE",
                     "INSERT FAILED: ${e.message}",
                     e
                 )
 
-                localRepository.insertAssignment(
-                    LabourAssignment(
-                        labourId = labourId,
-                        labourName = cleanLabourName,
-                        farmName = cleanFarmName,
-                        cropName = cleanCropName,
-                        taskName = cleanTaskName,
-                        assignmentDate =
-                            cleanAssignmentDate
+                try {
+                    localRepository.insertAssignment(
+                        LabourAssignment(
+                            labourId = labourId,
+                            labourName = cleanLabourName,
+                            farmName = cleanFarmName,
+                            cropName = cleanCropName,
+                            taskName = cleanTaskName,
+                            assignmentDate = cleanAssignmentDate
+                        )
                     )
-                )
+                } catch (localException: Exception) {
+                    Log.e(
+                        "ASSIGNMENT_SUPABASE",
+                        "LOCAL INSERT FAILED: ${localException.message}",
+                        localException
+                    )
+
+                    _errorMessage.value =
+                        "Unable to save assignment"
+                }
             }
         }
     }
@@ -361,11 +362,10 @@ class LabourAssignmentViewModel(
     fun deleteAssignment(
         assignment: LabourAssignment
     ) {
+        _errorMessage.value = null
 
         viewModelScope.launch {
-
             try {
-
                 supabaseRepository.deleteAssignment(
                     assignment.id.toLong()
                 )
@@ -378,26 +378,38 @@ class LabourAssignmentViewModel(
                 loadAssignments()
 
             } catch (e: Exception) {
-
                 Log.e(
                     "ASSIGNMENT_SUPABASE",
                     "DELETE FAILED: ${e.message}",
                     e
                 )
 
-                localRepository.deleteAssignment(
-                    assignment
-                )
+                try {
+                    localRepository.deleteAssignment(
+                        assignment
+                    )
+                } catch (localException: Exception) {
+                    Log.e(
+                        "ASSIGNMENT_SUPABASE",
+                        "LOCAL DELETE FAILED: ${localException.message}",
+                        localException
+                    )
+
+                    _errorMessage.value =
+                        "Unable to delete assignment"
+                }
             }
         }
+    }
+
+    fun clearError() {
+        _errorMessage.value = null
     }
 
     private fun convertDateForDisplay(
         date: String
     ): String {
-
-        val parts =
-            date.split("-")
+        val parts = date.split("-")
 
         if (parts.size != 3) {
             return date

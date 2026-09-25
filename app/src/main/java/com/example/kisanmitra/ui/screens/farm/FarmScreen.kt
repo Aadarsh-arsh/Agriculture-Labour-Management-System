@@ -1,5 +1,6 @@
 package com.example.kisanmitra.ui.screens.farm
 
+import androidx.compose.material3.AlertDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,9 +44,14 @@ fun FarmScreen(
         initial = emptyList()
     )
 
+    val errorMessage by viewModel.errorMessage.collectAsState(
+        initial = null
+    )
+
     var farmName by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
     var landArea by remember { mutableStateOf("") }
+    var farmToDelete by remember { mutableStateOf<Farm?>(null) }
 
     val darkGreen = Color(0xFF1B5E20)
     val green = Color(0xFF2E7D32)
@@ -108,7 +114,12 @@ fun FarmScreen(
 
                 OutlinedTextField(
                     value = farmName,
-                    onValueChange = { farmName = it },
+                    onValueChange = {
+                        farmName = it
+                        if (errorMessage != null) {
+                            viewModel.clearError()
+                        }
+                    },
                     label = {
                         Text("Farm Name")
                     },
@@ -121,7 +132,12 @@ fun FarmScreen(
 
                 OutlinedTextField(
                     value = location,
-                    onValueChange = { location = it },
+                    onValueChange = {
+                        location = it
+                        if (errorMessage != null) {
+                            viewModel.clearError()
+                        }
+                    },
                     label = {
                         Text("Location")
                     },
@@ -134,7 +150,12 @@ fun FarmScreen(
 
                 OutlinedTextField(
                     value = landArea,
-                    onValueChange = { landArea = it },
+                    onValueChange = {
+                        landArea = it
+                        if (errorMessage != null) {
+                            viewModel.clearError()
+                        }
+                    },
                     label = {
                         Text("Land Area (acres)")
                     },
@@ -145,8 +166,25 @@ fun FarmScreen(
                     shape = RoundedCornerShape(14.dp)
                 )
 
+                // Validation error
+                if (errorMessage != null) {
+
+                    Text(
+                        text = errorMessage ?: "",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color(0xFFC62828),
+                        modifier = Modifier.padding(
+                            top = 8.dp,
+                            start = 4.dp
+                        )
+                    )
+                }
+
                 Button(
                     onClick = {
+
+                        val beforeError = errorMessage
 
                         viewModel.addFarm(
                             farmName = farmName,
@@ -154,9 +192,22 @@ fun FarmScreen(
                             landArea = landArea
                         )
 
-                        farmName = ""
-                        location = ""
-                        landArea = ""
+                        // Clear fields only when the input itself
+                        // was valid.
+                        val area =
+                            landArea.trim().toDoubleOrNull()
+
+                        if (
+                            farmName.trim().isNotBlank() &&
+                            location.trim().isNotBlank() &&
+                            area != null &&
+                            area > 0 &&
+                            beforeError == null
+                        ) {
+                            farmName = ""
+                            location = ""
+                            landArea = ""
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -166,6 +217,7 @@ fun FarmScreen(
                         containerColor = green
                     )
                 ) {
+
                     Text(
                         text = "➕  Add Farm",
                         fontSize = 15.sp,
@@ -179,7 +231,10 @@ fun FarmScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 20.dp, bottom = 8.dp),
+                .padding(
+                    top = 20.dp,
+                    bottom = 8.dp
+                ),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
@@ -208,6 +263,7 @@ fun FarmScreen(
                     containerColor = lightGreen
                 )
             ) {
+
                 Text(
                     text = "🚜 ${farms.size}",
                     fontSize = 13.sp,
@@ -237,7 +293,7 @@ fun FarmScreen(
                 FarmCard(
                     farm = farm,
                     onDelete = {
-                        viewModel.deleteFarm(farm)
+                        farmToDelete = farm
                     }
                 )
             }
@@ -254,11 +310,58 @@ fun FarmScreen(
                 containerColor = Color(0xFF455A64)
             )
         ) {
+
             Text(
                 text = "←  Back to Dashboard",
                 fontWeight = FontWeight.Medium
             )
         }
+    }
+    if (farmToDelete != null) {
+
+        AlertDialog(
+            onDismissRequest = {
+                farmToDelete = null
+            },
+            title = {
+                Text(
+                    text = "Delete Farm?"
+                )
+            },
+            text = {
+                Text(
+                    text = "Are you sure you want to delete \"${farmToDelete?.farmName}\"?"
+                )
+            },
+            confirmButton = {
+
+                Button(
+                    onClick = {
+
+                        farmToDelete?.let {
+                            viewModel.deleteFarm(it)
+                        }
+
+                        farmToDelete = null
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFC62828)
+                    )
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+
+                Button(
+                    onClick = {
+                        farmToDelete = null
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 
@@ -294,6 +397,7 @@ private fun FarmCard(
                         containerColor = Color(0xFFE8F5E9)
                     )
                 ) {
+
                     Text(
                         text = "🚜",
                         fontSize = 23.sp,
@@ -323,7 +427,9 @@ private fun FarmCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -364,11 +470,14 @@ private fun FarmCard(
                     contentColor = Color(0xFFC62828)
                 )
             ) {
+
                 Text(
                     text = "🗑  Delete Farm",
                     fontWeight = FontWeight.Bold
                 )
             }
         }
+
     }
+
 }

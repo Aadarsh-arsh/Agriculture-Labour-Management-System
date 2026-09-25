@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.kisanmitra.data.Farm
 import com.example.kisanmitra.data.FarmRepository
 import com.example.kisanmitra.data.KisanMitraDatabase
-import com.example.kisanmitra.data.SupabaseFarm
 import com.example.kisanmitra.data.SupabaseFarmRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,6 +33,13 @@ class FarmViewModel(
     val farms: StateFlow<List<Farm>> =
         _farms.asStateFlow()
 
+    // Error message for validation / operation failures
+    private val _errorMessage =
+        MutableStateFlow<String?>(null)
+
+    val errorMessage: StateFlow<String?> =
+        _errorMessage.asStateFlow()
+
     init {
         loadFarms()
     }
@@ -43,6 +49,7 @@ class FarmViewModel(
         viewModelScope.launch {
 
             try {
+
                 val supabaseFarms =
                     supabaseRepository.getFarms()
 
@@ -56,9 +63,11 @@ class FarmViewModel(
                     )
                 }
 
+                _errorMessage.value = null
+
             } catch (e: Exception) {
 
-                // If Supabase fails, keep using local Room data
+                // If Supabase fails, use local Room data
                 localRepository.allFarms.collect { localFarms ->
                     _farms.value = localFarms
                 }
@@ -76,18 +85,30 @@ class FarmViewModel(
         val cleanLocation = location.trim()
         val area = landArea.trim().toDoubleOrNull()
 
-        // Validate required fields
-        if (
-            cleanFarmName.isBlank() ||
-            cleanLocation.isBlank()
-        ) {
+        // Validate farm name
+        if (cleanFarmName.isBlank()) {
+            _errorMessage.value = "Please enter farm name"
+            return
+        }
+
+        // Validate location
+        if (cleanLocation.isBlank()) {
+            _errorMessage.value = "Please enter farm location"
             return
         }
 
         // Validate land area
-        if (area == null || area <= 0) {
+        if (area == null) {
+            _errorMessage.value = "Please enter a valid land area"
             return
         }
+
+        if (area <= 0) {
+            _errorMessage.value = "Land area must be greater than 0"
+            return
+        }
+
+        _errorMessage.value = null
 
         viewModelScope.launch {
 
@@ -106,13 +127,23 @@ class FarmViewModel(
             } catch (e: Exception) {
 
                 // If Supabase fails, save locally
-                localRepository.insertFarm(
-                    Farm(
-                        farmName = cleanFarmName,
-                        location = cleanLocation,
-                        landArea = area
+                try {
+
+                    localRepository.insertFarm(
+                        Farm(
+                            farmName = cleanFarmName,
+                            location = cleanLocation,
+                            landArea = area
+                        )
                     )
-                )
+
+                    _errorMessage.value = null
+
+                } catch (localError: Exception) {
+
+                    _errorMessage.value =
+                        "Unable to save farm"
+                }
             }
         }
     }
@@ -134,8 +165,20 @@ class FarmViewModel(
             } catch (e: Exception) {
 
                 // If Supabase fails, delete locally
-                localRepository.deleteFarm(farm)
+                try {
+
+                    localRepository.deleteFarm(farm)
+
+                } catch (localError: Exception) {
+
+                    _errorMessage.value =
+                        "Unable to delete farm"
+                }
             }
         }
+    }
+
+    fun clearError() {
+        _errorMessage.value = null
     }
 }

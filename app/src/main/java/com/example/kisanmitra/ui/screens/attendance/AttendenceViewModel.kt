@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+
 import com.example.kisanmitra.data.Attendance
 import com.example.kisanmitra.data.AttendanceRepository
 import com.example.kisanmitra.data.KisanMitraDatabase
@@ -11,6 +12,7 @@ import com.example.kisanmitra.data.Labour
 import com.example.kisanmitra.data.SupabaseAttendanceRepository
 import com.example.kisanmitra.data.SupabaseAgriculturalTaskRepository
 import com.example.kisanmitra.data.SupabaseLabourRepository
+
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -37,11 +39,19 @@ class AttendanceViewModel(
     private val taskRepository =
         SupabaseAgriculturalTaskRepository()
 
+    // =========================================================
+    // ATTENDANCE
+    // =========================================================
+
     private val _attendance =
         MutableStateFlow<List<Attendance>>(emptyList())
 
     val attendance: StateFlow<List<Attendance>> =
         _attendance.asStateFlow()
+
+    // =========================================================
+    // LABOURERS
+    // =========================================================
 
     private val _labourers =
         MutableStateFlow<List<Labour>>(emptyList())
@@ -49,12 +59,30 @@ class AttendanceViewModel(
     val labourers: StateFlow<List<Labour>> =
         _labourers.asStateFlow()
 
+    // =========================================================
+    // ERROR
+    // =========================================================
+
+    private val _errorMessage =
+        MutableStateFlow<String?>(null)
+
+    val errorMessage: StateFlow<String?> =
+        _errorMessage.asStateFlow()
+
+    // =========================================================
+    // INIT
+    // =========================================================
+
     init {
         loadAttendance()
         loadLabourers()
     }
 
-    private fun loadLabourers() {
+    // =========================================================
+    // LOAD LABOURERS
+    // =========================================================
+
+    fun loadLabourers() {
 
         viewModelScope.launch {
 
@@ -87,11 +115,17 @@ class AttendanceViewModel(
                     .labourDao()
                     .getAllLabourers()
                     .collect { localLabourers ->
-                        _labourers.value = localLabourers
+
+                        _labourers.value =
+                            localLabourers
                     }
             }
         }
     }
+
+    // =========================================================
+    // LOAD ATTENDANCE
+    // =========================================================
 
     private fun loadAttendance() {
 
@@ -131,16 +165,21 @@ class AttendanceViewModel(
                             id =
                                 record.id?.toInt()
                                     ?: 0,
+
                             labourId =
                                 record.labour_id.toInt(),
+
                             labourName =
                                 labourName,
+
                             date =
                                 convertDateForDisplay(
                                     record.date
                                 ),
+
                             status =
                                 record.status,
+
                             taskName =
                                 taskName
                         )
@@ -154,20 +193,40 @@ class AttendanceViewModel(
                     e
                 )
 
-                localRepository.allAttendance.collect { localAttendance ->
-                    _attendance.value = localAttendance
-                }
+                localRepository
+                    .allAttendance
+                    .collect { localAttendance ->
+
+                        _attendance.value =
+                            localAttendance
+                    }
             }
         }
     }
 
-    fun markAttendance(
+    // =========================================================
+    // MARK ATTENDANCE
+    // =========================================================
+    //
+    // IMPORTANT:
+    // This is now a suspend function and RETURNS Boolean.
+    //
+    // true  = attendance successfully saved
+    // false = attendance was not saved
+    //
+    // AttendanceScreen will move to the next labour ONLY
+    // when this function returns true.
+    // =========================================================
+
+    suspend fun markAttendance(
         labourId: Int,
         labourName: String,
         date: String,
         status: String,
         taskName: String
-    ) {
+    ): Boolean {
+
+        _errorMessage.value = null
 
         val cleanLabourName =
             labourName.trim()
@@ -181,131 +240,247 @@ class AttendanceViewModel(
         val cleanTaskName =
             taskName.trim()
 
+        // =====================================================
+        // VALIDATION
+        // =====================================================
+
         if (
             labourId <= 0 ||
-            cleanLabourName.isBlank() ||
-            cleanDate.isBlank() ||
-            cleanStatus.isBlank() ||
-            cleanTaskName.isBlank()
+            cleanLabourName.isBlank()
         ) {
-            return
+
+            _errorMessage.value =
+                "Please select a labourer"
+
+            return false
         }
 
-        viewModelScope.launch {
+        if (cleanDate.isBlank()) {
+
+            _errorMessage.value =
+                "Please enter attendance date"
+
+            return false
+        }
+
+        if (cleanStatus.isBlank()) {
+
+            _errorMessage.value =
+                "Please select attendance status"
+
+            return false
+        }
+
+        if (cleanTaskName.isBlank()) {
+
+            _errorMessage.value =
+                "Please select agricultural task"
+
+            return false
+        }
+
+        // =====================================================
+        // SAVE
+        // =====================================================
+
+        return try {
+
+            // -------------------------------------------------
+            // GET EXISTING ATTENDANCE
+            // -------------------------------------------------
+
+            val existingAttendance =
+                supabaseRepository.getAttendance()
+
+            // -------------------------------------------------
+            // FIND LABOUR
+            // -------------------------------------------------
+
+            val labour =
+                labourRepository
+                    .getLabourers()
+                    .firstOrNull {
+                        it.id == labourId.toLong()
+                    }
+
+            if (labour == null) {
+
+                _errorMessage.value =
+                    "Labourer not found"
+
+                return false
+            }
+
+            // -------------------------------------------------
+            // FIND TASK
+            // -------------------------------------------------
+
+            val task =
+                taskRepository
+                    .getTasks()
+                    .firstOrNull {
+
+                        it.task_name.equals(
+                            cleanTaskName,
+                            ignoreCase = true
+                        )
+                    }
+
+            if (task == null) {
+
+                _errorMessage.value =
+                    "Agricultural task not found"
+
+                return false
+            }
+
+            // -------------------------------------------------
+            // DUPLICATE CHECK
+            // -------------------------------------------------
+
+            val duplicate =
+                existingAttendance.any { record ->
+
+                    record.labour_id ==
+                            labour.id &&
+
+                            record.task_id ==
+                            task.id &&
+
+                            convertDateForDisplay(
+                                record.date
+                            ) == cleanDate
+                }
+
+            if (duplicate) {
+
+                _errorMessage.value =
+                    "Attendance already marked for this labourer"
+
+                return false
+            }
+
+            // -------------------------------------------------
+            // INSERT INTO SUPABASE
+            // -------------------------------------------------
+
+            supabaseRepository.addAttendance(
+
+                labourName =
+                    cleanLabourName,
+
+                taskName =
+                    cleanTaskName,
+
+                date =
+                    cleanDate,
+
+                status =
+                    cleanStatus
+            )
+
+            Log.d(
+                "ATTENDANCE_SUPABASE",
+                "INSERT SUCCESS"
+            )
+
+            // -------------------------------------------------
+            // REFRESH ATTENDANCE HISTORY
+            // -------------------------------------------------
+
+            loadAttendance()
+
+            true
+
+        } catch (e: Exception) {
+
+            Log.e(
+                "ATTENDANCE_SUPABASE",
+                "INSERT FAILED: ${e.message}",
+                e
+            )
+
+            // =================================================
+            // ROOM FALLBACK
+            // =================================================
 
             try {
 
-                /*
-                 * Check Supabase first to prevent
-                 * duplicate attendance.
-                 */
-                val existingAttendance =
-                    supabaseRepository
-                        .getAttendance()
-
-                val labour =
-                    labourRepository
-                        .getLabourers()
-                        .firstOrNull {
-                            it.id == labourId.toLong()
-                        }
-
-                val task =
-                    taskRepository
-                        .getTasks()
-                        .firstOrNull {
-                            it.task_name.equals(
-                                cleanTaskName,
-                                ignoreCase = true
-                            )
-                        }
-
-                if (
-                    labour != null &&
-                    task != null
-                ) {
-
-                    val duplicate =
-                        existingAttendance.any { record ->
-
-                            record.labour_id ==
-                                    labour.id &&
-                                    record.task_id ==
-                                    task.id &&
-                                    convertDateForDisplay(
-                                        record.date
-                                    ) == cleanDate
-                        }
-
-                    if (duplicate) {
-                        return@launch
-                    }
-                }
-
-                supabaseRepository.addAttendance(
-                    labourName =
-                        cleanLabourName,
-                    taskName =
-                        cleanTaskName,
-                    date =
-                        cleanDate,
-                    status =
-                        cleanStatus
-                )
-
-                Log.d(
-                    "ATTENDANCE_SUPABASE",
-                    "INSERT SUCCESS"
-                )
-
-                loadAttendance()
-
-            } catch (e: Exception) {
-
-                Log.e(
-                    "ATTENDANCE_SUPABASE",
-                    "INSERT FAILED: ${e.message}",
-                    e
-                )
-
-                // Local fallback with existing
-                // duplicate protection.
                 val existingCount =
                     localRepository
                         .getAttendanceCount(
+
                             labourId =
                                 labourId,
+
                             date =
                                 cleanDate,
+
                             taskName =
                                 cleanTaskName
                         )
 
                 if (existingCount > 0) {
-                    return@launch
+
+                    _errorMessage.value =
+                        "Attendance already marked for this labourer"
+
+                    return false
                 }
 
                 localRepository.insertAttendance(
+
                     Attendance(
+
                         labourId =
                             labourId,
+
                         labourName =
                             cleanLabourName,
+
                         date =
                             cleanDate,
+
                         status =
                             cleanStatus,
+
                         taskName =
                             cleanTaskName
                     )
                 )
+
+                Log.d(
+                    "ATTENDANCE_LOCAL",
+                    "LOCAL INSERT SUCCESS"
+                )
+
+                true
+
+            } catch (localException: Exception) {
+
+                Log.e(
+                    "ATTENDANCE_LOCAL",
+                    "LOCAL INSERT FAILED: ${localException.message}",
+                    localException
+                )
+
+                _errorMessage.value =
+                    "Unable to save attendance"
+
+                false
             }
         }
     }
 
+    // =========================================================
+    // DELETE ATTENDANCE
+    // =========================================================
+
     fun deleteAttendance(
         attendance: Attendance
     ) {
+
+        _errorMessage.value = null
 
         viewModelScope.launch {
 
@@ -330,12 +505,38 @@ class AttendanceViewModel(
                     e
                 )
 
-                localRepository.deleteAttendance(
-                    attendance
-                )
+                try {
+
+                    localRepository.deleteAttendance(
+                        attendance
+                    )
+
+                } catch (localException: Exception) {
+
+                    Log.e(
+                        "ATTENDANCE_SUPABASE",
+                        "LOCAL DELETE FAILED: ${localException.message}",
+                        localException
+                    )
+
+                    _errorMessage.value =
+                        "Unable to delete attendance"
+                }
             }
         }
     }
+
+    // =========================================================
+    // CLEAR ERROR
+    // =========================================================
+
+    fun clearError() {
+        _errorMessage.value = null
+    }
+
+    // =========================================================
+    // DATE CONVERSION
+    // =========================================================
 
     private fun convertDateForDisplay(
         date: String
@@ -348,9 +549,14 @@ class AttendanceViewModel(
             return date
         }
 
-        val year = parts[0]
-        val month = parts[1]
-        val day = parts[2]
+        val year =
+            parts[0]
+
+        val month =
+            parts[1]
+
+        val day =
+            parts[2]
 
         return "$day/$month/$year"
     }

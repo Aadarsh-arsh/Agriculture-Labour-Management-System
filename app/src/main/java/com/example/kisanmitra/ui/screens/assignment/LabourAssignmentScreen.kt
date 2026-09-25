@@ -1,7 +1,6 @@
 package com.example.kisanmitra.ui.screens.assignment
 
 import android.app.DatePickerDialog
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,791 +9,439 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kisanmitra.data.LabourAssignment
 import java.util.Calendar
 
-private val FarmGreen = Color(0xFF2E7D32)
-private val LightGreen = Color(0xFFE8F5E9)
-private val DarkGreen = Color(0xFF1B5E20)
-private val SoftBackground = Color(0xFFF7FAF7)
-private val DeleteRed = Color(0xFFD32F2F)
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LabourAssignmentScreen(
     onBack: () -> Unit,
     viewModel: LabourAssignmentViewModel = viewModel()
 ) {
-
     val context = LocalContext.current
 
-    val assignments by viewModel.assignments.collectAsState(
-        initial = emptyList()
-    )
+    val assignments by viewModel.assignments.collectAsState()
+    val labourers by viewModel.labourers.collectAsState()
+    val farms by viewModel.farms.collectAsState()
+    val crops by viewModel.crops.collectAsState()
+    val agriculturalTasks by viewModel.agriculturalTasks.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
-    val labourers by viewModel.labourers.collectAsState(
-        initial = emptyList()
-    )
+    var selectedLabour by remember { mutableStateOf("") }
+    var selectedLabourId by remember { mutableStateOf(0) }
 
-    val farms by viewModel.farms.collectAsState(
-        initial = emptyList()
-    )
+    var selectedFarm by remember { mutableStateOf("") }
+    var selectedCrop by remember { mutableStateOf("") }
+    var selectedTask by remember { mutableStateOf("") }
+    var assignmentDate by remember { mutableStateOf("") }
 
-    val crops by viewModel.crops.collectAsState(
-        initial = emptyList()
-    )
+    var labourExpanded by remember { mutableStateOf(false) }
+    var farmExpanded by remember { mutableStateOf(false) }
+    var cropExpanded by remember { mutableStateOf(false) }
+    var taskExpanded by remember { mutableStateOf(false) }
 
-    val agriculturalTasks by viewModel.agriculturalTasks.collectAsState(
-        initial = emptyList()
-    )
-
-    var selectedLabourId by remember {
-        mutableStateOf(0)
+    var assignmentToDelete by remember {
+        mutableStateOf<LabourAssignment?>(null)
     }
 
-    var selectedLabourName by remember {
-        mutableStateOf("")
-    }
-
-    var labourDropdownExpanded by remember {
-        mutableStateOf(false)
-    }
-
-    var selectedFarmName by remember {
-        mutableStateOf("")
-    }
-
-    var farmDropdownExpanded by remember {
-        mutableStateOf(false)
-    }
-
-    var selectedCropName by remember {
-        mutableStateOf("")
-    }
-
-    var cropDropdownExpanded by remember {
-        mutableStateOf(false)
-    }
-
-    var selectedTaskName by remember {
-        mutableStateOf("")
-    }
-
-    var taskDropdownExpanded by remember {
-        mutableStateOf(false)
-    }
-
-    var assignmentDate by remember {
-        mutableStateOf("")
-    }
-
-    val calendar = remember {
-        Calendar.getInstance()
-    }
-
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(SoftBackground)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
 
-        // Header
-        Surface(
-            color = FarmGreen,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+        item {
+            Text(
+                text = "Labour Assignment"
+            )
+        }
 
-                Text(
-                    text = "‹",
-                    color = Color.White,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .padding(end = 12.dp)
-                        .background(
-                            Color.White.copy(alpha = 0.15f),
-                            RoundedCornerShape(10.dp)
-                        )
-                        .padding(horizontal = 10.dp, vertical = 2.dp)
-                )
-
-                Column(
-                    modifier = Modifier.weight(1f)
+        item {
+            Column {
+                OutlinedButton(
+                    onClick = {
+                        labourExpanded = true
+                        viewModel.clearError()
+                    },
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "Labour Assignment",
-                        color = Color.White,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
+                        text = if (selectedLabour.isBlank()) {
+                            "Select Labourer"
+                        } else {
+                            selectedLabour
+                        }
                     )
+                }
 
-                    Text(
-                        text = "Assign workers to farm activities",
-                        color = Color.White.copy(alpha = 0.85f),
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                DropdownMenu(
+                    expanded = labourExpanded,
+                    onDismissRequest = {
+                        labourExpanded = false
+                    }
+                ) {
+                    labourers.forEach { labour ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(labour.name)
+                            },
+                            onClick = {
+                                selectedLabour = labour.name
+                                selectedLabourId = labour.id
+                                labourExpanded = false
+                                viewModel.clearError()
+                            }
+                        )
+                    }
                 }
             }
         }
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            // Assignment form
-            item {
-
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color.White
-                    ),
-                    elevation = CardDefaults.cardElevation(
-                        defaultElevation = 3.dp
-                    )
+        item {
+            Column {
+                OutlinedButton(
+                    onClick = {
+                        farmExpanded = true
+                        viewModel.clearError()
+                    },
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-
-                        Text(
-                            text = "Create Assignment",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = DarkGreen
-                        )
-
-                        Text(
-                            text = "Connect a labourer with a farm task",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.Gray,
-                            modifier = Modifier.padding(top = 3.dp)
-                        )
-
-                        Spacer(modifier = Modifier.height(14.dp))
-
-                        // Labour
-                        ExposedDropdownMenuBox(
-                            expanded = labourDropdownExpanded,
-                            onExpandedChange = {
-                                labourDropdownExpanded =
-                                    !labourDropdownExpanded
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-
-                            OutlinedTextField(
-                                value = selectedLabourName,
-                                onValueChange = {},
-                                readOnly = true,
-                                label = {
-                                    Text("Select Labour")
-                                },
-                                placeholder = {
-                                    Text("Choose registered labour")
-                                },
-                                trailingIcon = {
-                                    ExposedDropdownMenuDefaults.TrailingIcon(
-                                        expanded = labourDropdownExpanded
-                                    )
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .menuAnchor(),
-                                shape = RoundedCornerShape(12.dp)
-                            )
-
-                            ExposedDropdownMenu(
-                                expanded = labourDropdownExpanded,
-                                onDismissRequest = {
-                                    labourDropdownExpanded = false
-                                }
-                            ) {
-
-                                if (labourers.isEmpty()) {
-
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text("No labourers registered")
-                                        },
-                                        onClick = {
-                                            labourDropdownExpanded = false
-                                        }
-                                    )
-
-                                } else {
-
-                                    labourers.forEach { labour ->
-
-                                        DropdownMenuItem(
-                                            text = {
-                                                Text(
-                                                    "${labour.name} - ID ${labour.id}"
-                                                )
-                                            },
-                                            onClick = {
-
-                                                selectedLabourId =
-                                                    labour.id
-
-                                                selectedLabourName =
-                                                    labour.name
-
-                                                labourDropdownExpanded =
-                                                    false
-                                            }
-                                        )
-                                    }
-                                }
-                            }
+                    Text(
+                        text = if (selectedFarm.isBlank()) {
+                            "Select Farm"
+                        } else {
+                            selectedFarm
                         }
+                    )
+                }
 
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        // Farm
-                        ExposedDropdownMenuBox(
-                            expanded = farmDropdownExpanded,
-                            onExpandedChange = {
-                                farmDropdownExpanded =
-                                    !farmDropdownExpanded
+                DropdownMenu(
+                    expanded = farmExpanded,
+                    onDismissRequest = {
+                        farmExpanded = false
+                    }
+                ) {
+                    farms.forEach { farm ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(farm.farmName)
                             },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-
-                            OutlinedTextField(
-                                value = selectedFarmName,
-                                onValueChange = {},
-                                readOnly = true,
-                                label = {
-                                    Text("Select Farm")
-                                },
-                                placeholder = {
-                                    Text("Choose registered farm")
-                                },
-                                trailingIcon = {
-                                    ExposedDropdownMenuDefaults.TrailingIcon(
-                                        expanded = farmDropdownExpanded
-                                    )
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .menuAnchor(),
-                                shape = RoundedCornerShape(12.dp)
-                            )
-
-                            ExposedDropdownMenu(
-                                expanded = farmDropdownExpanded,
-                                onDismissRequest = {
-                                    farmDropdownExpanded = false
-                                }
-                            ) {
-
-                                if (farms.isEmpty()) {
-
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text("No farms registered")
-                                        },
-                                        onClick = {
-                                            farmDropdownExpanded = false
-                                        }
-                                    )
-
-                                } else {
-
-                                    farms.forEach { farm ->
-
-                                        DropdownMenuItem(
-                                            text = {
-                                                Text(farm.farmName)
-                                            },
-                                            onClick = {
-
-                                                selectedFarmName =
-                                                    farm.farmName
-
-                                                farmDropdownExpanded =
-                                                    false
-                                            }
-                                        )
-                                    }
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        // Crop
-                        ExposedDropdownMenuBox(
-                            expanded = cropDropdownExpanded,
-                            onExpandedChange = {
-                                cropDropdownExpanded =
-                                    !cropDropdownExpanded
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-
-                            OutlinedTextField(
-                                value = selectedCropName,
-                                onValueChange = {},
-                                readOnly = true,
-                                label = {
-                                    Text("Select Crop")
-                                },
-                                placeholder = {
-                                    Text("Choose registered crop")
-                                },
-                                trailingIcon = {
-                                    ExposedDropdownMenuDefaults.TrailingIcon(
-                                        expanded = cropDropdownExpanded
-                                    )
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .menuAnchor(),
-                                shape = RoundedCornerShape(12.dp)
-                            )
-
-                            ExposedDropdownMenu(
-                                expanded = cropDropdownExpanded,
-                                onDismissRequest = {
-                                    cropDropdownExpanded = false
-                                }
-                            ) {
-
-                                if (crops.isEmpty()) {
-
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text("No crops registered")
-                                        },
-                                        onClick = {
-                                            cropDropdownExpanded = false
-                                        }
-                                    )
-
-                                } else {
-
-                                    crops.forEach { crop ->
-
-                                        DropdownMenuItem(
-                                            text = {
-                                                Text(
-                                                    "${crop.cropName} - ${crop.farmName}"
-                                                )
-                                            },
-                                            onClick = {
-
-                                                selectedCropName =
-                                                    crop.cropName
-
-                                                cropDropdownExpanded =
-                                                    false
-                                            }
-                                        )
-                                    }
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        // Agricultural Task
-                        ExposedDropdownMenuBox(
-                            expanded = taskDropdownExpanded,
-                            onExpandedChange = {
-                                taskDropdownExpanded =
-                                    !taskDropdownExpanded
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-
-                            OutlinedTextField(
-                                value = selectedTaskName,
-                                onValueChange = {},
-                                readOnly = true,
-                                label = {
-                                    Text("Select Agricultural Task")
-                                },
-                                placeholder = {
-                                    Text("Choose registered task")
-                                },
-                                trailingIcon = {
-                                    ExposedDropdownMenuDefaults.TrailingIcon(
-                                        expanded = taskDropdownExpanded
-                                    )
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .menuAnchor(),
-                                shape = RoundedCornerShape(12.dp)
-                            )
-
-                            ExposedDropdownMenu(
-                                expanded = taskDropdownExpanded,
-                                onDismissRequest = {
-                                    taskDropdownExpanded = false
-                                }
-                            ) {
-
-                                if (agriculturalTasks.isEmpty()) {
-
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text(
-                                                "No agricultural tasks registered"
-                                            )
-                                        },
-                                        onClick = {
-                                            taskDropdownExpanded = false
-                                        }
-                                    )
-
-                                } else {
-
-                                    agriculturalTasks.forEach { task ->
-
-                                        DropdownMenuItem(
-                                            text = {
-                                                Text(
-                                                    "${task.taskName} - ${task.cropName}"
-                                                )
-                                            },
-                                            onClick = {
-
-                                                selectedTaskName =
-                                                    task.taskName
-
-                                                taskDropdownExpanded =
-                                                    false
-                                            }
-                                        )
-                                    }
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        // Date
-                        OutlinedTextField(
-                            value = assignmentDate,
-                            onValueChange = {},
-                            readOnly = true,
-                            label = {
-                                Text("Assignment Date")
-                            },
-                            placeholder = {
-                                Text("DD/MM/YYYY")
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp)
-                        )
-
-                        Button(
                             onClick = {
+                                selectedFarm = farm.farmName
+                                farmExpanded = false
+                                viewModel.clearError()
+                            }
+                        )
+                    }
+                }
+            }
+        }
 
-                                val datePicker = DatePickerDialog(
-                                    context,
-                                    { _, year, month, dayOfMonth ->
+        item {
+            Column {
+                OutlinedButton(
+                    onClick = {
+                        cropExpanded = true
+                        viewModel.clearError()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = if (selectedCrop.isBlank()) {
+                            "Select Crop"
+                        } else {
+                            selectedCrop
+                        }
+                    )
+                }
 
-                                        assignmentDate = String.format(
+                DropdownMenu(
+                    expanded = cropExpanded,
+                    onDismissRequest = {
+                        cropExpanded = false
+                    }
+                ) {
+                    crops.forEach { crop ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(crop.cropName)
+                            },
+                            onClick = {
+                                selectedCrop = crop.cropName
+                                cropExpanded = false
+                                viewModel.clearError()
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        item {
+            Column {
+                OutlinedButton(
+                    onClick = {
+                        taskExpanded = true
+                        viewModel.clearError()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = if (selectedTask.isBlank()) {
+                            "Select Agricultural Task"
+                        } else {
+                            selectedTask
+                        }
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = taskExpanded,
+                    onDismissRequest = {
+                        taskExpanded = false
+                    }
+                ) {
+                    agriculturalTasks.forEach { task ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(task.taskName)
+                            },
+                            onClick = {
+                                selectedTask = task.taskName
+                                taskExpanded = false
+                                viewModel.clearError()
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        item {
+            OutlinedTextField(
+                value = assignmentDate,
+                onValueChange = {
+                    assignmentDate = it
+                    viewModel.clearError()
+                },
+                label = {
+                    Text("Assignment Date")
+                },
+                readOnly = true,
+                modifier = Modifier.fillMaxWidth(),
+                trailingIcon = {
+                    TextButton(
+                        onClick = {
+                            val calendar =
+                                Calendar.getInstance()
+
+                            DatePickerDialog(
+                                context,
+                                { _, year, month, day ->
+                                    assignmentDate =
+                                        String.format(
                                             "%02d/%02d/%04d",
-                                            dayOfMonth,
+                                            day,
                                             month + 1,
                                             year
                                         )
-                                    },
-                                    calendar.get(Calendar.YEAR),
-                                    calendar.get(Calendar.MONTH),
-                                    calendar.get(Calendar.DAY_OF_MONTH)
+
+                                    viewModel.clearError()
+                                },
+                                calendar.get(
+                                    Calendar.YEAR
+                                ),
+                                calendar.get(
+                                    Calendar.MONTH
+                                ),
+                                calendar.get(
+                                    Calendar.DAY_OF_MONTH
                                 )
-
-                                datePicker.show()
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 8.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = LightGreen,
-                                contentColor = DarkGreen
-                            )
-                        ) {
-                            Text(
-                                text = "Select Assignment Date",
-                                fontWeight = FontWeight.SemiBold
-                            )
+                            ).show()
                         }
-
-                        Spacer(modifier = Modifier.height(14.dp))
-
-                        Button(
-                            onClick = {
-
-                                viewModel.addAssignment(
-                                    labourId = selectedLabourId,
-                                    labourName = selectedLabourName,
-                                    farmName = selectedFarmName,
-                                    cropName = selectedCropName,
-                                    taskName = selectedTaskName,
-                                    assignmentDate = assignmentDate
-                                )
-
-                                selectedLabourId = 0
-                                selectedLabourName = ""
-                                selectedFarmName = ""
-                                selectedCropName = ""
-                                selectedTaskName = ""
-                                assignmentDate = ""
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = FarmGreen
-                            )
-                        ) {
-                            Text(
-                                text = "Assign Labour",
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
+                    ) {
+                        Text("Select")
                     }
                 }
+            )
+        }
+
+        item {
+            if (errorMessage != null) {
+                Text(
+                    text = errorMessage!!,
+                    color = Color.Red
+                )
             }
+        }
 
-            // Current assignments
-            item {
+        item {
+            Button(
+                onClick = {
+                    viewModel.addAssignment(
+                        labourId = selectedLabourId,
+                        labourName = selectedLabour,
+                        farmName = selectedFarm,
+                        cropName = selectedCrop,
+                        taskName = selectedTask,
+                        assignmentDate = assignmentDate
+                    )
 
-                Column(
+                    if (
+                        selectedLabourId > 0 &&
+                        selectedLabour.isNotBlank() &&
+                        selectedFarm.isNotBlank() &&
+                        selectedCrop.isNotBlank() &&
+                        selectedTask.isNotBlank() &&
+                        assignmentDate.isNotBlank()
+                    ) {
+                        selectedLabour = ""
+                        selectedLabourId = 0
+                        selectedFarm = ""
+                        selectedCrop = ""
+                        selectedTask = ""
+                        assignmentDate = ""
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Assign Labour")
+            }
+        }
+
+        item {
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
+
+            Text(
+                text = "Assignments"
+            )
+        }
+
+        items(assignments) { assignment ->
+
+            Card(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 4.dp)
+                        .padding(12.dp),
+                    horizontalArrangement =
+                        Arrangement.SpaceBetween
                 ) {
 
-                    Text(
-                        text = "Current Assignments",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Text(
-                        text = "${assignments.size} assignment${
-                            if (assignments.size == 1) "" else "s"
-                        } saved",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray,
-                        modifier = Modifier.padding(top = 2.dp)
-                    )
-                }
-            }
-
-            items(
-                items = assignments,
-                key = {
-                    it.id
-                }
-            ) { assignment ->
-
-                AssignmentCard(
-                    assignment = assignment,
-                    onDelete = {
-                        viewModel.deleteAssignment(assignment)
-                    }
-                )
-            }
-
-            item {
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Button(
-                    onClick = onBack,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Gray
-                    )
-                ) {
-                    Text(
-                        text = "Back",
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-        }
-    }
-}
-
-@Composable
-private fun AssignmentCard(
-    assignment: LabourAssignment,
-    onDelete: () -> Unit
-) {
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 2.dp
-        )
-    ) {
-
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-
-                    Text(
-                        text = assignment.labourName,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Text(
-                        text = "Labour ID: ${assignment.labourId}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray,
-                        modifier = Modifier.padding(top = 2.dp)
-                    )
-                }
-
-                IconButton(
-                    onClick = onDelete,
-                    modifier = Modifier
-                        .background(
-                            Color(0xFFFFEBEE),
-                            RoundedCornerShape(12.dp)
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            text =
+                                "Labour: ${assignment.labourName}"
                         )
-                ) {
-                    Text(
-                        text = "×",
-                        color = DeleteRed,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
+
+                        Text(
+                            text =
+                                "Farm: ${assignment.farmName}"
+                        )
+
+                        Text(
+                            text =
+                                "Crop: ${assignment.cropName}"
+                        )
+
+                        Text(
+                            text =
+                                "Task: ${assignment.taskName}"
+                        )
+
+                        Text(
+                            text =
+                                "Date: ${assignment.assignmentDate}"
+                        )
+                    }
+
+                    IconButton(
+                        onClick = {
+                            assignmentToDelete =
+                                assignment
+                        }
+                    ) {
+                        Text("×")
+                    }
                 }
             }
+        }
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Assignment details
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        LightGreen,
-                        RoundedCornerShape(12.dp)
-                    )
-                    .padding(12.dp)
+        item {
+            OutlinedButton(
+                onClick = onBack,
+                modifier = Modifier.fillMaxWidth()
             ) {
-
-                AssignmentDetail(
-                    label = "Farm",
-                    value = assignment.farmName
-                )
-
-                AssignmentDetail(
-                    label = "Crop",
-                    value = assignment.cropName
-                )
-
-                AssignmentDetail(
-                    label = "Task",
-                    value = assignment.taskName
-                )
-
-                AssignmentDetail(
-                    label = "Date",
-                    value = assignment.assignmentDate
-                )
+                Text("Back")
             }
         }
     }
-}
 
-@Composable
-private fun AssignmentDetail(
-    label: String,
-    value: String
-) {
+    if (assignmentToDelete != null) {
+        AlertDialog(
+            onDismissRequest = {
+                assignmentToDelete = null
+            },
+            title = {
+                Text("Delete Labour Assignment?")
+            },
+            text = {
+                Text(
+                    "Are you sure you want to delete the assignment for \"${assignmentToDelete?.labourName}\"?"
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        assignmentToDelete?.let {
+                            viewModel.deleteAssignment(it)
+                        }
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 3.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-
-        Text(
-            text = "$label:",
-            modifier = Modifier.width(70.dp),
-            fontWeight = FontWeight.Bold,
-            color = DarkGreen
-        )
-
-        Text(
-            text = value,
-            modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodyMedium
+                        assignmentToDelete = null
+                    }
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        assignmentToDelete = null
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
         )
     }
 }
+

@@ -12,12 +12,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -43,10 +45,16 @@ fun LabourScreen(
         initial = emptyList()
     )
 
+    val errorMessage by viewModel.errorMessage.collectAsState()
+
     var name by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var wage by remember { mutableStateOf("") }
     var skill by remember { mutableStateOf("") }
+
+    var labourToDelete by remember {
+        mutableStateOf<Labour?>(null)
+    }
 
     val darkGreen = Color(0xFF1B5E20)
     val green = Color(0xFF2E7D32)
@@ -109,7 +117,10 @@ fun LabourScreen(
 
                 OutlinedTextField(
                     value = name,
-                    onValueChange = { name = it },
+                    onValueChange = {
+                        name = it
+                        viewModel.clearError()
+                    },
                     label = {
                         Text("Labour Name")
                     },
@@ -122,7 +133,10 @@ fun LabourScreen(
 
                 OutlinedTextField(
                     value = phone,
-                    onValueChange = { phone = it },
+                    onValueChange = {
+                        phone = it
+                        viewModel.clearError()
+                    },
                     label = {
                         Text("Phone Number")
                     },
@@ -135,7 +149,10 @@ fun LabourScreen(
 
                 OutlinedTextField(
                     value = wage,
-                    onValueChange = { wage = it },
+                    onValueChange = {
+                        wage = it
+                        viewModel.clearError()
+                    },
                     label = {
                         Text("Daily Wage")
                     },
@@ -148,7 +165,10 @@ fun LabourScreen(
 
                 OutlinedTextField(
                     value = skill,
-                    onValueChange = { skill = it },
+                    onValueChange = {
+                        skill = it
+                        viewModel.clearError()
+                    },
                     label = {
                         Text("Skill / Work Type")
                     },
@@ -159,8 +179,26 @@ fun LabourScreen(
                     shape = RoundedCornerShape(14.dp)
                 )
 
+                if (errorMessage != null) {
+
+                    Text(
+                        text = errorMessage!!,
+                        color = Color(0xFFC62828),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(
+                            top = 8.dp
+                        )
+                    )
+                }
+
                 Button(
                     onClick = {
+
+                        val beforeName = name
+                        val beforePhone = phone
+                        val beforeWage = wage
+                        val beforeSkill = skill
 
                         viewModel.addLabour(
                             name = name,
@@ -169,10 +207,17 @@ fun LabourScreen(
                             skill = skill
                         )
 
-                        name = ""
-                        phone = ""
-                        wage = ""
-                        skill = ""
+                        if (
+                            beforeName.isNotBlank() &&
+                            beforePhone.isNotBlank() &&
+                            beforeWage.isNotBlank() &&
+                            beforeSkill.isNotBlank()
+                        ) {
+                            name = ""
+                            phone = ""
+                            wage = ""
+                            skill = ""
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -182,6 +227,7 @@ fun LabourScreen(
                         containerColor = green
                     )
                 ) {
+
                     Text(
                         text = "➕  Add Labourer",
                         fontSize = 15.sp,
@@ -195,7 +241,10 @@ fun LabourScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 20.dp, bottom = 8.dp),
+                .padding(
+                    top = 20.dp,
+                    bottom = 8.dp
+                ),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
@@ -205,7 +254,7 @@ fun LabourScreen(
 
                 Text(
                     text = "Your Labourers",
-                    fontSize = 20.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF263238)
                 )
@@ -224,6 +273,7 @@ fun LabourScreen(
                     containerColor = lightGreen
                 )
             ) {
+
                 Text(
                     text = "👥 ${labourers.size}",
                     fontSize = 13.sp,
@@ -253,7 +303,7 @@ fun LabourScreen(
                 LabourCard(
                     labour = labour,
                     onDelete = {
-                        viewModel.deleteLabour(labour)
+                        labourToDelete = labour
                     }
                 )
             }
@@ -270,11 +320,65 @@ fun LabourScreen(
                 containerColor = Color(0xFF455A64)
             )
         ) {
+
             Text(
                 text = "←  Back to Dashboard",
                 fontWeight = FontWeight.Medium
             )
         }
+    }
+
+    // Delete confirmation dialog
+    if (labourToDelete != null) {
+
+        AlertDialog(
+            onDismissRequest = {
+                labourToDelete = null
+            },
+            title = {
+                Text(
+                    text = "Delete Labourer?"
+                )
+            },
+            text = {
+                Text(
+                    text = "Are you sure you want to delete \"${labourToDelete?.name}\"?"
+                )
+            },
+            confirmButton = {
+
+                TextButton(
+                    onClick = {
+
+                        labourToDelete?.let {
+                            viewModel.deleteLabour(it)
+                        }
+
+                        labourToDelete = null
+                    }
+                ) {
+
+                    Text(
+                        text = "Delete",
+                        color = Color(0xFFC62828),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+
+                TextButton(
+                    onClick = {
+                        labourToDelete = null
+                    }
+                ) {
+
+                    Text(
+                        text = "Cancel"
+                    )
+                }
+            }
+        )
     }
 }
 
@@ -310,6 +414,7 @@ private fun LabourCard(
                         containerColor = Color(0xFFE8F5E9)
                     )
                 ) {
+
                     Text(
                         text = "👷",
                         fontSize = 23.sp,
@@ -339,7 +444,9 @@ private fun LabourCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -380,6 +487,7 @@ private fun LabourCard(
                     contentColor = Color(0xFFC62828)
                 )
             ) {
+
                 Text(
                     text = "🗑  Delete Labourer",
                     fontWeight = FontWeight.Bold

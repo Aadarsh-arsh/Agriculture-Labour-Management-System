@@ -36,6 +36,12 @@ class CropStageViewModel(
     val cropStages: StateFlow<List<CropStage>> =
         _cropStages.asStateFlow()
 
+    private val _errorMessage =
+        MutableStateFlow<String?>(null)
+
+    val errorMessage: StateFlow<String?> =
+        _errorMessage.asStateFlow()
+
     init {
         loadCropStages()
     }
@@ -79,6 +85,8 @@ class CropStageViewModel(
                         )
                     }
 
+                _errorMessage.value = null
+
             } catch (e: Exception) {
 
                 Log.e(
@@ -117,14 +125,35 @@ class CropStageViewModel(
         val cleanNotes =
             notes.trim()
 
-        if (
-            cleanCropName.isBlank() ||
-            cleanStageName.isBlank() ||
-            cleanStartDate.isBlank() ||
-            cleanEndDate.isBlank()
-        ) {
+        // Crop validation
+        if (cleanCropName.isBlank()) {
+            _errorMessage.value =
+                "Please enter crop name"
             return
         }
+
+        // Stage validation
+        if (cleanStageName.isBlank()) {
+            _errorMessage.value =
+                "Please enter stage name"
+            return
+        }
+
+        // Start date validation
+        if (cleanStartDate.isBlank()) {
+            _errorMessage.value =
+                "Please enter start date"
+            return
+        }
+
+        // End date validation
+        if (cleanEndDate.isBlank()) {
+            _errorMessage.value =
+                "Please enter end date"
+            return
+        }
+
+        _errorMessage.value = null
 
         viewModelScope.launch {
 
@@ -153,16 +182,26 @@ class CropStageViewModel(
                     e
                 )
 
-                // Fallback to local Room database
-                localRepository.insertCropStage(
-                    CropStage(
-                        cropName = cleanCropName,
-                        stageName = cleanStageName,
-                        startDate = cleanStartDate,
-                        endDate = cleanEndDate,
-                        notes = cleanNotes
+                try {
+
+                    // Fallback to local Room database
+                    localRepository.insertCropStage(
+                        CropStage(
+                            cropName = cleanCropName,
+                            stageName = cleanStageName,
+                            startDate = cleanStartDate,
+                            endDate = cleanEndDate,
+                            notes = cleanNotes
+                        )
                     )
-                )
+
+                    _errorMessage.value = null
+
+                } catch (localError: Exception) {
+
+                    _errorMessage.value =
+                        "Unable to save crop stage"
+                }
             }
         }
     }
@@ -194,12 +233,24 @@ class CropStageViewModel(
                     e
                 )
 
-                // Fallback to local Room database
-                localRepository.deleteCropStage(
-                    cropStage
-                )
+                try {
+
+                    // Fallback to local Room database
+                    localRepository.deleteCropStage(
+                        cropStage
+                    )
+
+                } catch (localError: Exception) {
+
+                    _errorMessage.value =
+                        "Unable to delete crop stage"
+                }
             }
         }
+    }
+
+    fun clearError() {
+        _errorMessage.value = null
     }
 
     private fun convertDateForDisplay(

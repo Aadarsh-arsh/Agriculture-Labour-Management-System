@@ -32,11 +32,17 @@ class LabourViewModel(
     val labourers: StateFlow<List<Labour>> =
         _labourers.asStateFlow()
 
+    private val _errorMessage =
+        MutableStateFlow<String?>(null)
+
+    val errorMessage: StateFlow<String?> =
+        _errorMessage.asStateFlow()
+
     init {
         loadLabourers()
     }
 
-    private fun loadLabourers() {
+    fun loadLabourers() {
 
         viewModelScope.launch {
 
@@ -79,6 +85,8 @@ class LabourViewModel(
         skill: String
     ) {
 
+        _errorMessage.value = null
+
         val cleanName =
             name.trim()
 
@@ -91,18 +99,43 @@ class LabourViewModel(
         val dailyWage =
             wage.trim().toDoubleOrNull()
 
-        if (
-            cleanName.isBlank() ||
-            cleanPhone.isBlank() ||
-            cleanSkill.isBlank()
-        ) {
+        if (cleanName.isBlank()) {
+
+            _errorMessage.value =
+                "Please enter labour name"
+
             return
         }
 
-        if (
-            dailyWage == null ||
-            dailyWage <= 0
-        ) {
+        if (cleanPhone.isBlank()) {
+
+            _errorMessage.value =
+                "Please enter phone number"
+
+            return
+        }
+
+        if (cleanSkill.isBlank()) {
+
+            _errorMessage.value =
+                "Please enter skill"
+
+            return
+        }
+
+        if (dailyWage == null) {
+
+            _errorMessage.value =
+                "Please enter a valid daily wage"
+
+            return
+        }
+
+        if (dailyWage <= 0) {
+
+            _errorMessage.value =
+                "Daily wage must be greater than 0"
+
             return
         }
 
@@ -132,14 +165,28 @@ class LabourViewModel(
                     e
                 )
 
-                localRepository.insertLabour(
-                    Labour(
-                        name = cleanName,
-                        phone = cleanPhone,
-                        dailyWage = dailyWage,
-                        skill = cleanSkill
+                try {
+
+                    localRepository.insertLabour(
+                        Labour(
+                            name = cleanName,
+                            phone = cleanPhone,
+                            dailyWage = dailyWage,
+                            skill = cleanSkill
+                        )
                     )
-                )
+
+                } catch (localException: Exception) {
+
+                    Log.e(
+                        "LABOUR_SUPABASE",
+                        "LOCAL INSERT FAILED: ${localException.message}",
+                        localException
+                    )
+
+                    _errorMessage.value =
+                        "Unable to save labour"
+                }
             }
         }
     }
@@ -147,6 +194,8 @@ class LabourViewModel(
     fun deleteLabour(
         labour: Labour
     ) {
+
+        _errorMessage.value = null
 
         viewModelScope.launch {
 
@@ -171,10 +220,28 @@ class LabourViewModel(
                     e
                 )
 
-                localRepository.deleteLabour(
-                    labour
-                )
+                try {
+
+                    localRepository.deleteLabour(
+                        labour
+                    )
+
+                } catch (localException: Exception) {
+
+                    Log.e(
+                        "LABOUR_SUPABASE",
+                        "LOCAL DELETE FAILED: ${localException.message}",
+                        localException
+                    )
+
+                    _errorMessage.value =
+                        "Unable to delete labour"
+                }
             }
         }
+    }
+
+    fun clearError() {
+        _errorMessage.value = null
     }
 }

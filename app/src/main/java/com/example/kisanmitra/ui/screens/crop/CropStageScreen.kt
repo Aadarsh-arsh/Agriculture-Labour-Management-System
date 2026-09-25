@@ -3,7 +3,6 @@ package com.example.kisanmitra.ui.screens.crop
 import android.app.DatePickerDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -59,7 +59,17 @@ fun CropStageScreen(
     var endDate by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
 
-    val cropStages by viewModel.cropStages.collectAsState(initial = emptyList())
+    var cropStageToDelete by remember {
+        mutableStateOf<CropStage?>(null)
+    }
+
+    val cropStages by viewModel.cropStages.collectAsState(
+        initial = emptyList()
+    )
+
+    val errorMessage by viewModel.errorMessage.collectAsState(
+        initial = null
+    )
 
     val calendar = remember {
         Calendar.getInstance()
@@ -79,7 +89,10 @@ fun CropStageScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                    .padding(
+                        horizontal = 16.dp,
+                        vertical = 16.dp
+                    ),
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
@@ -94,7 +107,10 @@ fun CropStageScreen(
                             Color.White.copy(alpha = 0.15f),
                             RoundedCornerShape(10.dp)
                         )
-                        .padding(horizontal = 10.dp, vertical = 2.dp)
+                        .padding(
+                            horizontal = 10.dp,
+                            vertical = 2.dp
+                        )
                 )
 
                 Column(
@@ -144,29 +160,37 @@ fun CropStageScreen(
                         modifier = Modifier.padding(16.dp)
                     ) {
 
-                        Column {
-                            Text(
-                                text = "Add Crop Stage",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = DarkGreen
-                            )
+                        Text(
+                            text = "Add Crop Stage",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = DarkGreen
+                        )
 
-                            Text(
-                                text = "Create a farming plan for your crop",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.Gray,
-                                modifier = Modifier.padding(top = 3.dp)
-                            )
-                        }
+                        Text(
+                            text = "Create a farming plan for your crop",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(top = 3.dp)
+                        )
 
                         Spacer(modifier = Modifier.height(14.dp))
 
                         OutlinedTextField(
                             value = cropName,
-                            onValueChange = { cropName = it },
-                            label = { Text("Crop Name") },
-                            placeholder = { Text("e.g. Tomato") },
+                            onValueChange = {
+                                cropName = it
+
+                                if (errorMessage != null) {
+                                    viewModel.clearError()
+                                }
+                            },
+                            label = {
+                                Text("Crop Name")
+                            },
+                            placeholder = {
+                                Text("e.g. Tomato")
+                            },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp)
@@ -176,9 +200,19 @@ fun CropStageScreen(
 
                         OutlinedTextField(
                             value = stageName,
-                            onValueChange = { stageName = it },
-                            label = { Text("Stage Name") },
-                            placeholder = { Text("e.g. Seedling") },
+                            onValueChange = {
+                                stageName = it
+
+                                if (errorMessage != null) {
+                                    viewModel.clearError()
+                                }
+                            },
+                            label = {
+                                Text("Stage Name")
+                            },
+                            placeholder = {
+                                Text("e.g. Seedling")
+                            },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp)
@@ -190,28 +224,46 @@ fun CropStageScreen(
                             value = startDate,
                             onValueChange = {},
                             readOnly = true,
-                            label = { Text("Start Date") },
-                            placeholder = { Text("DD/MM/YYYY") },
+                            label = {
+                                Text("Start Date")
+                            },
+                            placeholder = {
+                                Text("DD/MM/YYYY")
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp)
                         )
 
                         Button(
                             onClick = {
-                                val datePicker = DatePickerDialog(
-                                    context,
-                                    { _, year, month, dayOfMonth ->
-                                        startDate = String.format(
-                                            "%02d/%02d/%04d",
-                                            dayOfMonth,
-                                            month + 1,
-                                            year
+
+                                val datePicker =
+                                    DatePickerDialog(
+                                        context,
+                                        { _, year, month, dayOfMonth ->
+
+                                            startDate =
+                                                String.format(
+                                                    "%02d/%02d/%04d",
+                                                    dayOfMonth,
+                                                    month + 1,
+                                                    year
+                                                )
+
+                                            if (errorMessage != null) {
+                                                viewModel.clearError()
+                                            }
+                                        },
+                                        calendar.get(
+                                            Calendar.YEAR
+                                        ),
+                                        calendar.get(
+                                            Calendar.MONTH
+                                        ),
+                                        calendar.get(
+                                            Calendar.DAY_OF_MONTH
                                         )
-                                    },
-                                    calendar.get(Calendar.YEAR),
-                                    calendar.get(Calendar.MONTH),
-                                    calendar.get(Calendar.DAY_OF_MONTH)
-                                )
+                                    )
 
                                 datePicker.show()
                             },
@@ -236,28 +288,46 @@ fun CropStageScreen(
                             value = endDate,
                             onValueChange = {},
                             readOnly = true,
-                            label = { Text("End Date") },
-                            placeholder = { Text("DD/MM/YYYY") },
+                            label = {
+                                Text("End Date")
+                            },
+                            placeholder = {
+                                Text("DD/MM/YYYY")
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp)
                         )
 
                         Button(
                             onClick = {
-                                val datePicker = DatePickerDialog(
-                                    context,
-                                    { _, year, month, dayOfMonth ->
-                                        endDate = String.format(
-                                            "%02d/%02d/%04d",
-                                            dayOfMonth,
-                                            month + 1,
-                                            year
+
+                                val datePicker =
+                                    DatePickerDialog(
+                                        context,
+                                        { _, year, month, dayOfMonth ->
+
+                                            endDate =
+                                                String.format(
+                                                    "%02d/%02d/%04d",
+                                                    dayOfMonth,
+                                                    month + 1,
+                                                    year
+                                                )
+
+                                            if (errorMessage != null) {
+                                                viewModel.clearError()
+                                            }
+                                        },
+                                        calendar.get(
+                                            Calendar.YEAR
+                                        ),
+                                        calendar.get(
+                                            Calendar.MONTH
+                                        ),
+                                        calendar.get(
+                                            Calendar.DAY_OF_MONTH
                                         )
-                                    },
-                                    calendar.get(Calendar.YEAR),
-                                    calendar.get(Calendar.MONTH),
-                                    calendar.get(Calendar.DAY_OF_MONTH)
-                                )
+                                    )
 
                                 datePicker.show()
                             },
@@ -280,8 +350,16 @@ fun CropStageScreen(
 
                         OutlinedTextField(
                             value = notes,
-                            onValueChange = { notes = it },
-                            label = { Text("Notes") },
+                            onValueChange = {
+                                notes = it
+
+                                if (errorMessage != null) {
+                                    viewModel.clearError()
+                                }
+                            },
+                            label = {
+                                Text("Notes")
+                            },
                             placeholder = {
                                 Text("Add farming notes...")
                             },
@@ -290,10 +368,30 @@ fun CropStageScreen(
                             shape = RoundedCornerShape(12.dp)
                         )
 
+                        // Validation error
+                        if (errorMessage != null) {
+                            Text(
+                                text = errorMessage ?: "",
+                                color = Color(0xFFC62828),
+                                fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.padding(
+                                    top = 8.dp,
+                                    start = 4.dp
+                                )
+                            )
+                        }
+
                         Spacer(modifier = Modifier.height(14.dp))
 
                         Button(
                             onClick = {
+
+                                val validInput =
+                                    cropName.trim().isNotBlank() &&
+                                            stageName.trim().isNotBlank() &&
+                                            startDate.trim().isNotBlank() &&
+                                            endDate.trim().isNotBlank()
 
                                 viewModel.addCropStage(
                                     cropName = cropName,
@@ -303,11 +401,13 @@ fun CropStageScreen(
                                     notes = notes
                                 )
 
-                                cropName = ""
-                                stageName = ""
-                                startDate = ""
-                                endDate = ""
-                                notes = ""
+                                if (validInput) {
+                                    cropName = ""
+                                    stageName = ""
+                                    startDate = ""
+                                    endDate = ""
+                                    notes = ""
+                                }
                             },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp),
@@ -338,7 +438,10 @@ fun CropStageScreen(
                     )
 
                     Text(
-                        text = "${cropStages.size} stage${if (cropStages.size == 1) "" else "s"} saved",
+                        text = "${cropStages.size} stage${
+                            if (cropStages.size == 1) ""
+                            else "s"
+                        } saved",
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray,
                         modifier = Modifier.padding(top = 2.dp)
@@ -355,7 +458,7 @@ fun CropStageScreen(
                 CropStageCard(
                     cropStage = cropStage,
                     onDelete = {
-                        viewModel.deleteCropStage(cropStage)
+                        cropStageToDelete = cropStage
                     }
                 )
             }
@@ -379,6 +482,54 @@ fun CropStageScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
             }
+        }
+
+        // Delete confirmation dialog
+        if (cropStageToDelete != null) {
+
+            AlertDialog(
+                onDismissRequest = {
+                    cropStageToDelete = null
+                },
+                title = {
+                    Text(
+                        text = "Delete Crop Stage?"
+                    )
+                },
+                text = {
+                    Text(
+                        text = "Are you sure you want to delete \"${cropStageToDelete?.stageName}\"?"
+                    )
+                },
+                confirmButton = {
+
+                    Button(
+                        onClick = {
+
+                            cropStageToDelete?.let {
+                                viewModel.deleteCropStage(it)
+                            }
+
+                            cropStageToDelete = null
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = DeleteRed
+                        )
+                    ) {
+                        Text("Delete")
+                    }
+                },
+                dismissButton = {
+
+                    Button(
+                        onClick = {
+                            cropStageToDelete = null
+                        }
+                    ) {
+                        Text("Cancel")
+                    }
+                }
+            )
         }
     }
 }
@@ -446,7 +597,6 @@ private fun CropStageCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Dates
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -491,7 +641,6 @@ private fun CropStageCard(
                 }
             }
 
-            // Notes
             if (cropStage.notes.isNotBlank()) {
 
                 Spacer(modifier = Modifier.height(12.dp))
