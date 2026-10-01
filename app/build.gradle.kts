@@ -16,9 +16,14 @@ if (localPropertiesFile.exists()) {
     }
 }
 
-val supabaseUrl = localProperties.getProperty("SUPABASE_URL", "")
+val supabaseUrl =
+    localProperties.getProperty("SUPABASE_URL", "")
+
 val supabasePublishableKey =
-    localProperties.getProperty("SUPABASE_PUBLISHABLE_KEY", "")
+    localProperties.getProperty(
+        "SUPABASE_PUBLISHABLE_KEY",
+        ""
+    )
 
 android {
     namespace = "com.example.kisanmitra"
@@ -33,12 +38,13 @@ android {
         applicationId = "com.example.kisanmitra"
 
         minSdk = 26
-
         targetSdk = 37
+
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner =
+            "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField(
             "String",
@@ -62,8 +68,11 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility =
+            JavaVersion.VERSION_11
+
+        targetCompatibility =
+            JavaVersion.VERSION_11
     }
 
     buildFeatures {
@@ -74,44 +83,78 @@ android {
 
 dependencies {
 
-    // -------------------------
+    // =========================
     // Jetpack Compose
-    // -------------------------
-
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.ui.tooling.preview)
-
-    // -------------------------
-    // Android / Lifecycle
-    // -------------------------
-
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-
-    // -------------------------
-    // Navigation
-    // -------------------------
-
-    implementation("androidx.navigation:navigation-compose:2.9.4")
-
-    // -------------------------
-    // Room Database
-    // -------------------------
-
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
-
-    // -------------------------
-    // Supabase
-    // -------------------------
+    // =========================
 
     implementation(
-        platform("io.github.jan-tennert.supabase:bom:3.2.1")
+        platform(libs.androidx.compose.bom)
+    )
+
+    implementation(
+        libs.androidx.activity.compose
+    )
+
+    implementation(
+        libs.androidx.compose.material3
+    )
+
+    implementation(
+        libs.androidx.compose.ui
+    )
+
+    implementation(
+        libs.androidx.compose.ui.graphics
+    )
+
+    implementation(
+        libs.androidx.compose.ui.tooling.preview
+    )
+
+    // =========================
+    // Android / Lifecycle
+    // =========================
+
+    implementation(
+        libs.androidx.core.ktx
+    )
+
+    implementation(
+        libs.androidx.lifecycle.runtime.ktx
+    )
+
+    // =========================
+    // Navigation
+    // =========================
+
+    implementation(
+        "androidx.navigation:navigation-compose:2.9.4"
+    )
+
+    // =========================
+    // Room Database
+    // =========================
+
+    implementation(
+        libs.androidx.room.runtime
+    )
+
+    implementation(
+        libs.androidx.room.ktx
+    )
+
+    ksp(
+        libs.androidx.room.compiler
+    )
+
+    // =========================
+    // Supabase
+    // =========================
+
+    implementation(
+        platform(
+            "io.github.jan-tennert.supabase:bom:3.2.1"
+        )
     )
 
     implementation(
@@ -122,16 +165,25 @@ dependencies {
         "io.github.jan-tennert.supabase:postgrest-kt"
     )
 
-    // Ktor Android networking
+    implementation(
+        "io.github.jan-tennert.supabase:storage-kt:3.2.1"
+    )
+
+    // =========================
+    // Ktor Android HTTP Engine
+    // =========================
+
     implementation(
         "io.ktor:ktor-client-android:3.2.1"
     )
 
-    // -------------------------
+    // =========================
     // Testing
-    // -------------------------
+    // =========================
 
-    testImplementation(libs.junit)
+    testImplementation(
+        libs.junit
+    )
 
     androidTestImplementation(
         platform(libs.androidx.compose.bom)

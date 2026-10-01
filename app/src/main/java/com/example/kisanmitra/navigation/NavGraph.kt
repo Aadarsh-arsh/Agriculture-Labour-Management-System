@@ -405,7 +405,12 @@ fun NavGraph(
 
             HarvestMarketplaceScreen(
                 onBack = {
-                    navController.popBackStack()
+                    navController.navigate(Screen.Dashboard.route) {
+                        popUpTo(Screen.Dashboard.route) {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
                 },
                 onPostHarvest = {
                     navController.navigate("post_harvest_crop")
@@ -420,7 +425,15 @@ fun NavGraph(
 
             PostHarvestCropScreen(
                 onBack = {
-                    navController.popBackStack()
+                    navController.navigate(
+                        Screen.HarvestMarketplace.route
+                    ) {
+                        popUpTo("post_harvest_crop") {
+                            inclusive = true
+                        }
+
+                        launchSingleTop = true
+                    }
                 }
             )
         }

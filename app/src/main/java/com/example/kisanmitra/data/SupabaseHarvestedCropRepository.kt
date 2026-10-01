@@ -1,6 +1,7 @@
 package com.example.kisanmitra.data
 
-
+import io.github.jan.supabase.storage.storage
+import io.github.jan.supabase.storage.upload
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 
@@ -113,5 +114,25 @@ class SupabaseHarvestedCropRepository {
                     )
                 }
             }
+    }
+    suspend fun uploadCropPhoto(
+        userId: String,
+        fileName: String,
+        fileBytes: ByteArray
+    ): String {
+
+        val path =
+            "$userId/$fileName"
+
+        client.storage
+            .from("harvested-crops")
+            .upload(
+                path = path,
+                data = fileBytes
+            ) {
+                upsert = false
+            }
+
+        return path
     }
 }

@@ -174,6 +174,32 @@ class HarvestedCropViewModel(
             }
         }
     }
+    fun uploadCropPhoto(
+        userId: String,
+        fileName: String,
+        fileBytes: ByteArray,
+        onSuccess: (String) -> Unit,
+        onError: (String) -> Unit = {}
+    ) {
+        viewModelScope.launch {
+            try {
+                val path = repository.uploadCropPhoto(
+                    userId = userId,
+                    fileName = fileName,
+                    fileBytes = fileBytes
+                )
+
+                onSuccess(path)
+
+            } catch (e: Exception) {
+                val message =
+                    e.message ?: "Unable to upload crop photo"
+
+                _errorMessage.value = message
+                onError(message)
+            }
+        }
+    }
 
     fun clearError() {
         _errorMessage.value = null

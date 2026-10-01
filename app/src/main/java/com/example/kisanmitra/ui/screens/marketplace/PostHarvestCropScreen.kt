@@ -1,5 +1,10 @@
 package com.example.kisanmitra.ui.screens.marketplace
 
+import io.github.jan.supabase.auth.auth
+import com.example.kisanmitra.data.SupabaseClientProvider
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.foundation.background
@@ -21,7 +26,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -32,12 +36,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
+private suspend fun readImageBytes(
+    context: android.content.Context,
+    uri: Uri
+): ByteArray? {
+    return context.contentResolver
+        .openInputStream(uri)
+        ?.use { it.readBytes() }
+}
 @Composable
 fun PostHarvestCropScreen(
     onBack: () -> Unit,
     viewModel: HarvestedCropViewModel =
         viewModel()
 ) {
+
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     var farmerName by remember {
         mutableStateOf("")
@@ -80,6 +94,22 @@ fun PostHarvestCropScreen(
     }
 
     val errorMessage by viewModel.errorMessage.collectAsState()
+    var selectedPhotoUri by remember {
+        mutableStateOf<Uri?>(null)
+    }
+
+    val photoPickerLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent()
+        ) { uri ->
+
+            selectedPhotoUri = uri
+
+            if (uri != null) {
+                validationMessage = null
+                viewModel.clearError()
+            }
+        }
 
     Column(
         modifier = Modifier
@@ -283,8 +313,8 @@ fun PostHarvestCropScreen(
         )
 
         // =========================
-        // PHOTO PLACEHOLDER
-        // =========================
+// CROP PHOTO
+// =========================
 
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -306,18 +336,46 @@ fun PostHarvestCropScreen(
                 )
 
                 Spacer(
-                    modifier = Modifier.height(6.dp)
+                    modifier = Modifier.height(8.dp)
                 )
 
-                Text(
-                    text =
-                        "Photo upload will be connected next.",
-                    fontSize = 13.sp,
-                    color = Color(0xFF607D8B)
+                if (selectedPhotoUri != null) {
+
+                    Text(
+                        text = "Photo selected successfully.",
+                        fontSize = 13.sp,
+                        color = Color(0xFF2E7D32)
+                    )
+
+                } else {
+
+                    Text(
+                        text = "Add a clear photo of your harvested crop.",
+                        fontSize = 13.sp,
+                        color = Color(0xFF607D8B)
+                    )
+                }
+
+                Spacer(
+                    modifier = Modifier.height(12.dp)
                 )
+
+                Button(
+                    onClick = {
+                        photoPickerLauncher.launch("image/*")
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = if (selectedPhotoUri != null) {
+                            "Change Photo"
+                        } else {
+                            "Select Crop Photo"
+                        }
+                    )
+                }
             }
         }
-
         Spacer(
             modifier = Modifier.height(16.dp)
         )
@@ -422,21 +480,72 @@ fun PostHarvestCropScreen(
 
                 if (validationMessage == null) {
 
-                    viewModel.addHarvestedCrop(
-                        farmerName = cleanFarmerName,
-                        cropName = cleanCropName,
-                        quantity = parsedQuantity!!,
-                        unit = cleanUnit,
-                        expectedPrice = parsedPrice!!,
-                        location = cleanLocation,
-                        harvestDate = cleanHarvestDate,
-                        description = cleanDescription,
-                        contactNumber = cleanContact,
-                        photoUrl = null,
-                        onSuccess = {
-                            onBack()
+                    val selectedUri = selectedPhotoUri
+
+                    if (selectedUri == null) {
+
+                        validationMessage =
+                            "Please select a crop photo"
+
+                    } else {
+
+                        val fileBytes =
+                            kotlinx.coroutines.runBlocking {
+                                readImageBytes(
+                                    context = context,
+                                    uri = selectedUri
+                                )
+                            }
+
+                        if (fileBytes == null) {
+
+                            validationMessage =
+                                "Unable to read selected photo"
+
+                        } else {
+
+                            val user =
+                                SupabaseClientProvider
+                                    .client
+                                    .auth
+                                    .currentUserOrNull()
+
+                            if (user == null) {
+
+                                validationMessage =
+                                    "User is not logged in"
+
+                            } else {
+
+                                val fileName =
+                                    "harvest_${System.currentTimeMillis()}.jpg"
+
+                                viewModel.uploadCropPhoto(
+                                    userId = user.id,
+                                    fileName = fileName,
+                                    fileBytes = fileBytes,
+                                    onSuccess = { photoPath ->
+
+                                        viewModel.addHarvestedCrop(
+                                            farmerName = cleanFarmerName,
+                                            cropName = cleanCropName,
+                                            quantity = parsedQuantity!!,
+                                            unit = cleanUnit,
+                                            expectedPrice = parsedPrice!!,
+                                            location = cleanLocation,
+                                            harvestDate = cleanHarvestDate,
+                                            description = cleanDescription,
+                                            contactNumber = cleanContact,
+                                            photoUrl = photoPath,
+                                            onSuccess = {
+                                                onBack()
+                                            }
+                                        )
+                                    }
+                                )
+                            }
                         }
-                    )
+                    }
                 }
             },
             modifier = Modifier
