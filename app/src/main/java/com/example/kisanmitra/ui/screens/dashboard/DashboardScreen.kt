@@ -285,6 +285,14 @@ fun DashboardScreen(
                 onNavigate(Screen.Wage.route)
             }
         )
+        DashboardCard(
+            icon = "🛒",
+            title = "Crop Marketplace",
+            description = "Sell your harvested crops directly to buyers and wholesalers.",
+            onClick = {
+                onNavigate(Screen.HarvestMarketplace.route)
+            }
+        )
 
         // =========================
         // CROP MANAGEMENT

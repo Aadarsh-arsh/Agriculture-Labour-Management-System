@@ -1,5 +1,6 @@
 package com.example.kisanmitra.navigation
 
+import com.example.kisanmitra.ui.screens.marketplace.PostHarvestCropScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,6 +22,7 @@ import com.example.kisanmitra.ui.screens.dashboard.DashboardScreen
 import com.example.kisanmitra.ui.screens.farm.FarmScreen
 import com.example.kisanmitra.ui.screens.labour.LabourScreen
 import com.example.kisanmitra.ui.screens.organic.OrganicFarmingScreen
+import com.example.kisanmitra.ui.screens.marketplace.HarvestMarketplaceScreen
 import com.example.kisanmitra.ui.screens.task.AgriculturalTaskScreen
 import com.example.kisanmitra.ui.screens.wage.WageScreen
 import com.example.kisanmitra.utils.LanguageManager
@@ -58,6 +60,8 @@ sealed class Screen(val route: String) {
     data object Wage : Screen("wage")
 
     data object OrganicFarming : Screen("organic_farming")
+
+    data object HarvestMarketplace : Screen("harvest_marketplace")
 }
 
 @Composable
@@ -393,5 +397,34 @@ fun NavGraph(
                 }
             )
         }
+        // --------------------------------------------------
+// HARVEST MARKETPLACE
+// --------------------------------------------------
+
+        composable(Screen.HarvestMarketplace.route) {
+
+            HarvestMarketplaceScreen(
+                onBack = {
+                    navController.popBackStack()
+                },
+                onPostHarvest = {
+                    navController.navigate("post_harvest_crop")
+                }
+            )
+        }
+        // --------------------------------------------------
+// POST HARVESTED CROP
+// --------------------------------------------------
+
+        composable("post_harvest_crop") {
+
+            PostHarvestCropScreen(
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+
     }
 }
