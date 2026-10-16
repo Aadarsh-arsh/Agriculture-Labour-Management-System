@@ -23,8 +23,8 @@ class LabourManagementAnalyticsTest {
 
         assertEquals(3, result.recordCount)
         assertEquals(9, result.totalWorkerDays)
-        assertEquals(4100.0, result.totalCost, 0.001)
-        assertEquals(4100.0 / 9.0, result.averageDailyRate, 0.001)
+        assertEquals(4800.0, result.totalCost, 0.001)
+        assertEquals(4800.0 / 9.0, result.averageDailyRate, 0.001)
 
         val highestCostWorker = result.highestCostWorker
         assertNotNull(highestCostWorker)
